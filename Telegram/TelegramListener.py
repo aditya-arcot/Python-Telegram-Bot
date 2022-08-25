@@ -73,9 +73,10 @@ def help_msg():
 def handle_message(update: Update, context: CallbackContext):
     start = time.time()
     _, id, msg, approved = intro(update)
+    
+    messages = []
 
     if approved:
-        messages = []
         if msg == 'help':
             print('Command - help')
             messages = help_msg()
@@ -102,10 +103,10 @@ def handle_message(update: Update, context: CallbackContext):
         else:
             messages = ['Command not recognized']
 
-        TelegramUtils.send_reply_messages(update, messages)
-        
     else:
-        TelegramUtils.send_reply_messages(update, ['Unauthorized'])
+        messages = ['Unauthorized']
+
+    TelegramUtils.send_reply_messages(update, messages)
 
     print(Utils.total_time(start))
     #sys.stdout.flush() #use -u flag when running instead
