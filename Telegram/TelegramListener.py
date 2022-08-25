@@ -70,6 +70,8 @@ def help_msg():
     out.append(' - todo')
     return out
 
+todo_variations = ['todo', 'todos', 'to do', 'to dos', 'to-do', 'to-dos']
+
 def handle_message(update: Update, context: CallbackContext):
     start = time.time()
     _, id, msg, approved = intro(update)
@@ -92,7 +94,7 @@ def handle_message(update: Update, context: CallbackContext):
             messages = Weather.main()
         
         #Canvas todos
-        elif msg == 'todo' or msg == 'todos' or msg == 'to do' or msg == 'to dos':
+        elif msg in todo_variations:
             print('Command - todos')
             out = ReceiveTodoMessageController.main(names[ids.index(id)])
             if out == None:
