@@ -46,7 +46,7 @@ def filter_todos(all_todo_attributes):
 
             if diff > min_diff and diff <= max_diff:
                 filtered_todo_attributes.append([i[0], i[1], i[2], diff])
-    
+
     return filtered_todo_attributes
 
 def sort_todo_attributes(attributes):
@@ -71,8 +71,8 @@ def get_todos(key):
 
         out.sort()
         out.insert(0, '{date} Upcoming Assignments ({num})'.format(date = curr.strftime("%m/%d"), num = len(all_todo_attributes)))
-        
-    return out	
+
+    return out
 
 def get_reminders(key):
     all_todo_attributes = get_all_todo_attributes(key) #list of [name, Arrow object, course code]
@@ -81,18 +81,24 @@ def get_reminders(key):
     out = []
     for i in filtered_todo_attributes:
         name = CanvasUtils.get_output_string(i[0])
-        
+
         t = CanvasUtils.get_rounded_time_remaining(i[3])
 
         st = 'Assignment due in about {}'.format(t[1])
         if t[0] == 'm':
-            st += ' minutes!! - '
+            st += ' minute'
+            if t[1] > 1:
+                st += 's'
+            st += '!! - '
         else:
-            st += ' hours! - '
+            st += ' hour'
+            if t[1] > 1:
+                st += 's'
+            st += '! - '
         st += '({}) '.format(i[2]) + name
 
         out.append(st)
-    
+
     return out
 
 def main(mode, key):
