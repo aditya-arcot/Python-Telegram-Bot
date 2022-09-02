@@ -4,19 +4,21 @@ from telegram import Update, Bot
 import sys
 import time
 
-def send_reply_messages(update: Update, messages: list):
-    print('Sending messages:')
-    for i in messages:
-        print(i)
-        update.message.reply_text(i)
-    print()
+async def reply(update: Update, out: list):
+    if len(out) > 0:
+        print('Sending messages:')
+        for i in out:
+            print(i)
+            await update.message.reply_text(i)
+        print()
 
-def send_new_messages(bot: Bot, chat_id, messages: list):
-    print('Sending messages:')
-    for i in messages:
-        print(i)
-        bot.send_message(text=i, chat_id=chat_id)
-    print()
+async def new_message(bot: Bot, chat_id, out: list):
+    if len(out) > 0:
+        print('Sending messages:')
+        for i in out:
+            print(i)
+            await bot.send_message(chat_id=chat_id, text=i)
+        print()
 
 def get_token():
     path = os.path.join(sys.path[0], '..', 'Telegram', 'token.txt')
@@ -32,7 +34,7 @@ def get_users_info():
     ids, names = [], []
     for line in f:
         lst = line.strip().split('\t')
-        
+
         ids.append(int(lst[0]))
         names.append(lst[1])
 

@@ -65,15 +65,6 @@ def msg_info(update):
     print()
     return user, id, msg, True
 
-# reply to user message from list
-async def reply(update, out):
-    if len(out) > 0:
-        print('Sending messages:')
-        for i in out:
-            print(i)
-            await update.message.reply_text(i)
-        print()
-
 async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE, cmd):
     start = time.time()
     user, id, msg, approved = msg_info(update)
@@ -105,7 +96,7 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE, cmd
         else:
             out = ['Unauthorized']
 
-    await reply(update, out)
+    await TelegramUtils.reply(update, out)
     print(Utils.total_time(start))
 
 
@@ -137,18 +128,18 @@ async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     start = time.time()
     user, id, msg, approved = msg_info(update)
     if approved:
-        await reply(update, ['Command not recognized'] + help_msg())
+        await TelegramUtils.reply(update, ['Command not recognized'] + help_msg())
     else:
-        await reply(update, ['Unauthorized'])
+        await TelegramUtils.reply(update, ['Unauthorized'])
     print(Utils.total_time(start))
 
 async def msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     start = time.time()
     user, id, msg, approved = msg_info(update)
     if approved:
-        await reply(update, ['Please use commands, not messages'] + help_msg())
+        await TelegramUtils.reply(update, ['Please use commands, not messages'] + help_msg())
     else:
-        await reply(update, ['Unauthorized'])
+        await TelegramUtils.reply(update, ['Unauthorized'])
     print(Utils.total_time(start))
 
 

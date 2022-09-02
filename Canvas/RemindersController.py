@@ -1,4 +1,5 @@
 import time, datetime, sys, os
+import asyncio
 
 # add parent dir
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -25,28 +26,27 @@ canvas_names, keys = CanvasUtils.get_canvas_users_info()
 ids, telegram_names = TelegramUtils.get_users_info()
 bot = Bot(TelegramUtils.get_token())
 
+mode = None
 try:
     mode = sys.argv[1]
 except Exception as e:
     print('no mode passed!')
 
-if mode != 'all' and mode != 'urgent':
-    print('unknown mode passed! - {}'.format(mode))
-else:
-    for i in range(len(ids)):
-        id = ids[i]
-        telegram_name = telegram_names[i]
-        print('Chat id: {} ({})'.format(id, telegram_name))
+if mode != None:
+    if mode != 'all' and mode != 'urgent':
+        print('unknown mode passed! - {}'.format(mode))
+    else:
+        for i in range(len(ids)):
+            id = ids[i]
+            telegram_name = telegram_names[i]
+            print('Chat id: {} ({})'.format(id, telegram_name))
 
-        if telegram_name in canvas_names:
-            key = keys[canvas_names.index(telegram_name)]
+            if telegram_name in canvas_names:
+                key = keys[canvas_names.index(telegram_name)]
 
-            messages = Todos.main(mode, key)
-            TelegramUtils.send_new_messages(bot, id, messages)
-        else:
-            print('Canvas todos not linked for this user!')
-
-        #TelegramUtils.send_new_messages(bot, ids[i], )
-
+                messages = Todos.main(mode, key)
+                asyncio.run(TelegramUtils.new_message(bot, id, messages))
+            else:
+                print('Canvas todos not linked for this user!')
 
 print(Utils.total_time(start))
