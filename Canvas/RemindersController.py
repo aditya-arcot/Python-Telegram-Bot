@@ -45,7 +45,18 @@ if mode != None:
                 key = keys[canvas_names.index(telegram_name)]
 
                 messages = Todos.main(mode, key)
-                asyncio.run(TelegramUtils.new_message(bot, id, messages))
+                try:
+                    asyncio.run(TelegramUtils.new_message(bot, id, messages))
+                except Exception as e:
+                    print('exception occurred')
+                    print(e)
+                    print('\nsecond attempt:')
+                    try:
+                        asyncio.run(TelegramUtils.new_message(bot, id, messages))
+                    except Exception as e:
+                        print('exception occurred')
+                        print(e)
+                        print()
             else:
                 print('Canvas todos not linked for this user!')
 
