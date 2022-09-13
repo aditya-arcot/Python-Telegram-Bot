@@ -33,7 +33,7 @@ def help_msg():
     out = []
     out.append('Supported commands:')
     out.append(' - /help')
-    #out.append(' - /ping (system test)') # don't need to show in command list
+    out.append(' - /ping')
     out.append(' - /weather')
     out.append(' - /todo')
     out.append(' - /rng lower_bound upper_bound [n]')
