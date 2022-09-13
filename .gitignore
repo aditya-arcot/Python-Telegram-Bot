@@ -3,3 +3,7 @@
 Logs/
 *.swp
 __pycache__/
+Telegram/token.txt
+Telegram/users.txt
+Weather/key.txt
+Canvas/users.txt

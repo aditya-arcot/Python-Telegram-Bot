@@ -23,7 +23,7 @@ async def new_message(bot: Bot, chat_id, out: list):
 def get_token():
     path = os.path.join(sys.path[0], '..', 'Telegram', 'token.txt')
     f = open(path, "r")
-    token = f.readlines()[0].strip()
+    token = f.readlines()[0].strip() #change to 1 for sandbox bot
     f.close()
     return token
 

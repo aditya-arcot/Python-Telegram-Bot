@@ -16,6 +16,9 @@ from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHan
 # Canvas dir
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'Canvas'))
 
+# Weather dir
+sys.path.insert(1, os.path.join(sys.path[0], '..', 'Weather'))
+
 import RNG
 import Weather
 import ReceiveTodoMessageController
