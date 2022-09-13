@@ -30,7 +30,6 @@ ids, names = TelegramUtils.get_users_info()
 
 token = TelegramUtils.get_token()
 
-
 # returns help messages
 def help_msg():
     out = []
