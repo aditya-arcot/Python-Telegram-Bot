@@ -72,7 +72,6 @@ def get_todos(key):
         out.sort()
 
         out_str = '<b><u>{date} Upcoming Assignments ({num})</u></b>'.format(date = curr.strftime("%m/%d"), num = len(all_todo_attributes))
-        #out.insert(0, '{date} Upcoming Assignments ({num})'.format(date = curr.strftime("%m/%d"), num = len(all_todo_attributes)))
         for i in out:
             out_str += '\n' + i + '\n'
 

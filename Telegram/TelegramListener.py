@@ -38,10 +38,11 @@ token = TelegramUtils.get_token()
 def help_msg():
     out = '<b><u>Supported commands:</u></b>\n'
     out += ' - /help\n'
-    out += ' - /ping\n'
-    out += ' - /weather\n'
     out += ' - /todo\n'
+    out += ' - /weather\n'
+    out += ' - /news\n'
     out += ' - /rng min max [n]\n'
+    out += ' - /ping\n'
     out += ' - /clear'
     return [out]
 
