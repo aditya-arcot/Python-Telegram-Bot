@@ -91,6 +91,11 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE, cmd
                     out = ['You are not registered for Canvas todos. Contact admin!']
             elif cmd == 'rng':
                 out = RNG.main(context.args)
+            elif cmd == 'clear':
+                out = ''
+                for i in range(50):
+                    out += '﹒\n'
+                out = [out]
             else:
                 print('unknown cmd provided - {} - check code'.format(cmd))
         else:
@@ -120,8 +125,11 @@ async def todo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await received_command(update, context, 'todo')
 
 # rng command received
-async def rng(update: Update, context: ContextTypes. DEFAULT_TYPE):
+async def rng(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await received_command(update, context, 'rng')
+
+async def clear(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await received_command(update, context, 'clear')
 
 # other commands received
 async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -150,6 +158,7 @@ if __name__ == '__main__':
     weather_handler = CommandHandler("weather", weather)
     todo_handler = CommandHandler("todo", todo)
     rng_handler = CommandHandler("rng", rng)
+    clear_handler = CommandHandler("clear", clear)
     unknown_command_handler = MessageHandler(filters.COMMAND, unknown_command)
     message_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), msg)
 
@@ -161,6 +170,7 @@ if __name__ == '__main__':
     app.add_handler(weather_handler)
     app.add_handler(todo_handler)
     app.add_handler(rng_handler)
+    app.add_handler(clear_handler)
     app.add_handler(unknown_command_handler)
     app.add_handler(message_handler)
 
