@@ -3,6 +3,7 @@ from matplotlib import lines
 from telegram import Update, Bot
 import sys
 import time
+import asyncio
 
 async def reply(update: Update, out: list):
     if len(out) > 0:
