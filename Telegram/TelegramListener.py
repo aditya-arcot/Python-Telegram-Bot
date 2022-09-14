@@ -38,7 +38,7 @@ def help_msg():
     out.append(' - /ping')
     out.append(' - /weather')
     out.append(' - /todo')
-    out.append(' - /rng lower_bound upper_bound [n]')
+    out.append(' - /rng min max [n]')
     return out
 
 # received message info
