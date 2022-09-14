@@ -19,11 +19,15 @@ sys.path.insert(1, os.path.join(sys.path[0], '..', 'Canvas'))
 # Weather dir
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'Weather'))
 
+# News dir
+sys.path.insert(1, os.path.join(sys.path[0], '..', 'News'))
+
 import RNG
 import Weather
 import ReceiveTodoMessageController
 import TelegramUtils
 import Utils
+import News
 
 # read Telegram user info
 ids, names = TelegramUtils.get_users_info()
@@ -38,6 +42,7 @@ def help_msg():
     out += ' - /weather\n'
     out += ' - /todo\n'
     out += ' - /rng min max [n]\n'
+    out += ' - /clear'
     return [out]
 
 # received message info
@@ -96,12 +101,14 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE, cmd
                 for i in range(50):
                     out += '﹒\n'
                 out = [out]
+            elif cmd == 'news':
+                out = News.main()
             else:
                 print('unknown cmd provided - {} - check code'.format(cmd))
         else:
             out = ['Unauthorized']
 
-    await TelegramUtils.reply(update, out)
+    await TelegramUtils.reply(update, out, disable_web_page_preview=True if cmd=='news' else None)
     print(Utils.total_time(start))
 
 
@@ -128,8 +135,13 @@ async def todo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def rng(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await received_command(update, context, 'rng')
 
+# clear command received
 async def clear(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await received_command(update, context, 'clear')
+
+# news command received
+async def news(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await received_command(update, context, 'news')
 
 # other commands received
 async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -159,6 +171,7 @@ if __name__ == '__main__':
     todo_handler = CommandHandler("todo", todo)
     rng_handler = CommandHandler("rng", rng)
     clear_handler = CommandHandler("clear", clear)
+    news_handler = CommandHandler("news", news)
     unknown_command_handler = MessageHandler(filters.COMMAND, unknown_command)
     message_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), msg)
 
@@ -171,6 +184,7 @@ if __name__ == '__main__':
     app.add_handler(todo_handler)
     app.add_handler(rng_handler)
     app.add_handler(clear_handler)
+    app.add_handler(news_handler)
     app.add_handler(unknown_command_handler)
     app.add_handler(message_handler)
 
