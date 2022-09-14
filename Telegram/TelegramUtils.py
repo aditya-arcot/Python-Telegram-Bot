@@ -20,10 +20,10 @@ def new_message(bot: Bot, chat_id, out: list):
             asyncio.get_event_loop().run_until_complete(bot.send_message(chat_id=chat_id, text=i))
         print()
 
-def get_token():
+def get_token(sandbox = False):
     path = os.path.join(sys.path[0], '..', 'Telegram', 'token.txt')
     f = open(path, "r")
-    token = f.readlines()[0].strip() #change to 1 for sandbox bot
+    token = f.readlines()[1 if sandbox else 0].strip()
     f.close()
     return token
 
