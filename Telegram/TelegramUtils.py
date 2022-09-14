@@ -12,12 +12,12 @@ async def reply(update: Update, out: list):
             await update.message.reply_text(i)
         print()
 
-async def new_message(bot: Bot, chat_id, out: list):
+def new_message(bot: Bot, chat_id, out: list):
     if len(out) > 0:
         print('Sending messages:')
         for i in out:
             print(i)
-            await bot.send_message(chat_id=chat_id, text=i)
+            asyncio.get_event_loop().run_until_complete(bot.send_message(chat_id=chat_id, text=i))
         print()
 
 def get_token():
