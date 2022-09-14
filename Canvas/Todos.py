@@ -64,17 +64,17 @@ def get_todos(key):
         for i in all_todo_attributes:
             s = CanvasUtils.get_output_string(i[0])
             if i[1] != None:
-                out.append(' - {date} ({day}) {time} - {course} - {name}'.format(date=i[1].strftime("%m/%d"), day = i[1].strftime('%a'),\
+                out.append('{date} ({day}) {time} - {course} - {name}'.format(date=i[1].strftime("%m/%d"), day = i[1].strftime('%a'),\
                     time = i[1].strftime("%H:%M"), course = i[2], name = s))
             else:
-                out.append(' - {}'.format(s))
+                out.append('{}'.format(s))
 
         out.sort()
 
         out_str = '<b><u>{date} Upcoming Assignments ({num})</u></b>'.format(date = curr.strftime("%m/%d"), num = len(all_todo_attributes))
         #out.insert(0, '{date} Upcoming Assignments ({num})'.format(date = curr.strftime("%m/%d"), num = len(all_todo_attributes)))
         for i in out:
-            out_str += '\n' + i
+            out_str += '\n' + i + '\n'
 
     return [out_str]
 
