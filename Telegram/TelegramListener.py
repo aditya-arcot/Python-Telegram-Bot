@@ -72,9 +72,13 @@ def msg_info(update):
     print()
     return user, id, msg, True
 
-async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE, cmd):
+async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
     start = time.time()
     user, id, msg, approved = msg_info(update)
+
+    msg_lst = msg.split()
+    cmd = msg_lst[0][1:]
+    args = msg_lst[1:]
 
     out = []
     if cmd == 'start':
@@ -96,7 +100,7 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE, cmd
                 if out == None:
                     out = ['You are not registered for Canvas todos. Contact admin!']
             elif cmd == 'rng':
-                out = RNG.main(context.args)
+                out = RNG.main(args)
             elif cmd == 'clear':
                 out = ''
                 for i in range(50):
@@ -111,38 +115,6 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE, cmd
 
     await TelegramUtils.reply(update, out, disable_web_page_preview=True if cmd=='news' else None)
     print(Utils.total_time(start))
-
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await received_command(update, context, 'start')
-
-# help command received
-async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await received_command(update, context, 'help')
-
-# ping command received
-async def ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await received_command(update, context, 'ping')
-
-# weather command received
-async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await received_command(update, context, 'weather')
-
-# todo command received
-async def todo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await received_command(update, context, 'todo')
-
-# rng command received
-async def rng(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await received_command(update, context, 'rng')
-
-# clear command received
-async def clear(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await received_command(update, context, 'clear')
-
-# news command received
-async def news(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await received_command(update, context, 'news')
 
 # other commands received
 async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -163,30 +135,18 @@ async def msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await TelegramUtils.reply(update, ['Unauthorized'])
     print(Utils.total_time(start))
 
-
 if __name__ == '__main__':
-    start_handler = CommandHandler("start", start)
-    help_handler = CommandHandler("help", help)
-    ping_handler = CommandHandler("ping", ping)
-    weather_handler = CommandHandler("weather", weather)
-    todo_handler = CommandHandler("todo", todo)
-    rng_handler = CommandHandler("rng", rng)
-    clear_handler = CommandHandler("clear", clear)
-    news_handler = CommandHandler("news", news)
-    unknown_command_handler = MessageHandler(filters.COMMAND, unknown_command)
-    message_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), msg)
-
     app = ApplicationBuilder().token(token).build()
 
-    app.add_handler(start_handler)
-    app.add_handler(help_handler)
-    app.add_handler(ping_handler)
-    app.add_handler(weather_handler)
-    app.add_handler(todo_handler)
-    app.add_handler(rng_handler)
-    app.add_handler(clear_handler)
-    app.add_handler(news_handler)
-    app.add_handler(unknown_command_handler)
-    app.add_handler(message_handler)
+    app.add_handler(CommandHandler("start", received_command))
+    app.add_handler(CommandHandler("help", received_command))
+    app.add_handler(CommandHandler("ping", received_command))
+    app.add_handler(CommandHandler("weather", received_command))
+    app.add_handler(CommandHandler("todo", received_command))
+    app.add_handler(CommandHandler("rng", received_command))
+    app.add_handler(CommandHandler("clear", received_command))
+    app.add_handler(CommandHandler("news", received_command))
+    app.add_handler(MessageHandler(filters.COMMAND, unknown_command)) #unknown command
+    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), msg)) #any message
 
     app.run_polling()
