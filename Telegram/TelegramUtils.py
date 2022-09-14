@@ -2,15 +2,15 @@ import os, sys, time, asyncio
 from matplotlib import lines
 from telegram import Update, Bot
 
-async def reply(update: Update, out: list):
+async def reply(update: Update, out: list, parse_mode='HTML', disable_web_page_preview=None):
     if len(out) > 0:
         print('Sending messages:')
         for i in out:
             print(i)
-            await update.message.reply_text(i)
+            await update.message.reply_text(i, parse_mode=parse_mode, disable_web_page_preview=disable_web_page_preview)
         print()
 
-def new_message(bot: Bot, chat_id, out: list, parse_mode=None, disable_web_page_preview=None):
+def new_message(bot: Bot, chat_id, out: list, parse_mode='HTML', disable_web_page_preview=None):
     if len(out) > 0:
         print('Sending messages:')
         for i in out:

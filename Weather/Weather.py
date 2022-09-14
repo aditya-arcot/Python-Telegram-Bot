@@ -26,8 +26,7 @@ def main():
             print('Error code {}'.format(x["cod"]))
             print(x["message"])
         else:
-            out = []
-            out.append('Weather for {}, {}:'.format(g.city, g.state))
+            out = '<b><u>Weather for {}, {}:</u></b>\n'.format(g.city, g.state)
 
             curr = x['current']
             day = x['daily'][0]
@@ -36,13 +35,13 @@ def main():
             sunset = datetime.fromtimestamp(day['sunset'])
 
             F = '\u00b0F'
-            out.append('- Feels like {} {}'.format(curr['feels_like'], F))
-            out.append('- Low: {} {}, High: {} {}'.format(day['temp']['min'], F, day['temp']['max'], F))
-            out.append('- Description: {}'.format(curr['weather'][0]['description'].capitalize()))
-            out.append('- Sunrise: {}, Sunset: {}'\
-                .format(datetime.strftime(sunrise, '%-I:%M %p'),datetime.strftime(sunset, '%-I:%M %p')))
+            out += '- Feels like {} {}\n'.format(curr['feels_like'], F)
+            out += '- Low: {} {}, High: {} {}\n'.format(day['temp']['min'], F, day['temp']['max'], F)
+            out += '- Description: {}\n'.format(curr['weather'][0]['description'].capitalize())
+            out += '- Sunrise: {}, Sunset: {}\n'\
+                .format(datetime.strftime(sunrise, '%-I:%M %p'),datetime.strftime(sunset, '%-I:%M %p'))
 
-            return out
+            return [out]
 
     except Exception as e:
         print(e)

@@ -70,9 +70,13 @@ def get_todos(key):
                 out.append(' - {}'.format(s))
 
         out.sort()
-        out.insert(0, '{date} Upcoming Assignments ({num})'.format(date = curr.strftime("%m/%d"), num = len(all_todo_attributes)))
 
-    return out
+        out_str = '<b><u>{date} Upcoming Assignments ({num})</u></b>'.format(date = curr.strftime("%m/%d"), num = len(all_todo_attributes))
+        #out.insert(0, '{date} Upcoming Assignments ({num})'.format(date = curr.strftime("%m/%d"), num = len(all_todo_attributes)))
+        for i in out:
+            out_str += '\n' + i
+
+    return [out_str]
 
 def get_reminders(key):
     all_todo_attributes = get_all_todo_attributes(key) #list of [name, Arrow object, course code]
@@ -84,7 +88,7 @@ def get_reminders(key):
 
         t = CanvasUtils.get_rounded_time_remaining(i[3])
 
-        st = 'Assignment due in about {}'.format(t[1])
+        st = 'Due in {}'.format(t[1])
         if t[0] == 'm':
             st += ' minute'
             if t[1] > 1:

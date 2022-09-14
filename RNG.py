@@ -5,10 +5,11 @@ def rand_generator(lower, upper, n = 1):
     seed = int(time.time())
     random.seed(seed)
 
-    out = ['seed: {}'.format(seed)]
+    out = '<b><u>{} random number(s) between {} and {}</u></b>'.format(n, lower, upper)
+    out += '\nseed: {}'.format(seed)
     for i in range(n):
-        out.append(random.randint(lower, upper))
-    return out
+        out += '\n' + str(random.randint(lower, upper))
+    return [out]
 
 def main(args):
     if len(args) < 2:

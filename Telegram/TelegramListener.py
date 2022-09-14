@@ -32,14 +32,13 @@ token = TelegramUtils.get_token()
 
 # returns help messages
 def help_msg():
-    out = []
-    out.append('Supported commands:')
-    out.append(' - /help')
-    out.append(' - /ping')
-    out.append(' - /weather')
-    out.append(' - /todo')
-    out.append(' - /rng min max [n]')
-    return out
+    out = '<b><u>Supported commands:</u></b>\n'
+    out += ' - /help\n'
+    out += ' - /ping\n'
+    out += ' - /weather\n'
+    out += ' - /todo\n'
+    out += ' - /rng min max [n]\n'
+    return [out]
 
 # received message info
 # returns - username, user id, msg text, approval status
@@ -73,10 +72,9 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE, cmd
 
     out = []
     if cmd == 'start':
-        out = ['Welcome!']
+        out = ['<b>Welcome!</b>']
         if not approved:
-            out.append('Contact admin for approval!')
-            out.append('Provide id # {}'.format(id))
+            out.append('Contact admin for approval!\nProvide id # {}'.format(id))
         else:
             out += help_msg()
     else:
