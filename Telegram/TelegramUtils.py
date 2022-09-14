@@ -1,9 +1,6 @@
-import os
+import os, sys, time, asyncio
 from matplotlib import lines
 from telegram import Update, Bot
-import sys
-import time
-import asyncio
 
 async def reply(update: Update, out: list):
     if len(out) > 0:
@@ -13,12 +10,16 @@ async def reply(update: Update, out: list):
             await update.message.reply_text(i)
         print()
 
-def new_message(bot: Bot, chat_id, out: list):
+def new_message(bot: Bot, chat_id, out: list, parse_mode=None, disable_web_page_preview=None):
     if len(out) > 0:
         print('Sending messages:')
         for i in out:
             print(i)
-            asyncio.get_event_loop().run_until_complete(bot.send_message(chat_id=chat_id, text=i))
+            asyncio.get_event_loop().run_until_complete(
+                bot.send_message(
+                    chat_id=chat_id, text=i, parse_mode=parse_mode,
+                    disable_web_page_preview=disable_web_page_preview)
+            )
         print()
 
 def get_token(sandbox = False):
