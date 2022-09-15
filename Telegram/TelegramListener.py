@@ -1,4 +1,4 @@
-import logging, sys, os, datetime, time, asyncio
+import logging, sys, os, datetime, time
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(message)s',
     level=logging.INFO
