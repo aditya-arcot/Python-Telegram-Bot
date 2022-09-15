@@ -1,4 +1,4 @@
-import logging, sys, os, datetime, time
+import logging, sys, os, datetime, time, asyncio
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(message)s',
     level=logging.INFO
@@ -10,7 +10,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import WaitForInternet
 WaitForInternet.main()
 
-from telegram import Update
+from telegram import Update, Bot
 from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes
 
 # Canvas dir
@@ -115,9 +115,7 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
                 out = News.main()
             elif cmd == 'nasa':
                 url, title = NASA.main()
-                asyncio.get_event_loop().run_until_complete(
-                    bot.send_photo(photo=url, chat_id=id, caption=title)
-                )
+                await Bot(token).send_photo(photo=url, chat_id=id, caption=title)
             else:
                 print('unknown cmd provided - {} - check code'.format(cmd))
         else:
