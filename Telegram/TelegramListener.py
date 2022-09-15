@@ -22,12 +22,16 @@ sys.path.insert(1, os.path.join(sys.path[0], '..', 'Weather'))
 # News dir
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'News'))
 
+# NASA dir
+sys.path.insert(1, os.path.join(sys.path[0], '..', 'NASA'))
+
 import RNG
 import Weather
 import ReceiveTodoMessageController
 import TelegramUtils
 import Utils
 import News
+import NASA
 
 # read Telegram user info
 ids, names = TelegramUtils.get_users_info()
@@ -108,12 +112,18 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
                 out = [out]
             elif cmd == 'news':
                 out = News.main()
+            elif cmd == 'nasa':
+                url, title = NASA.main()
+                asyncio.get_event_loop().run_until_complete(
+                    bot.send_photo(photo=url, chat_id=id, caption=title)
+                )
             else:
                 print('unknown cmd provided - {} - check code'.format(cmd))
         else:
             out = ['Unauthorized']
 
-    await TelegramUtils.reply(update, out, disable_web_page_preview=True if cmd=='news' else None)
+    if cmd != 'nasa':
+        await TelegramUtils.reply(update, out, disable_web_page_preview=True if cmd=='news' else None)
     print(Utils.total_time(start))
 
 # other commands received
@@ -146,6 +156,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("rng", received_command))
     app.add_handler(CommandHandler("clear", received_command))
     app.add_handler(CommandHandler("news", received_command))
+    app.add_handler(CommandHandler("nasa", received_command))
     app.add_handler(MessageHandler(filters.COMMAND, unknown_command)) #unknown command
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), msg)) #any message
 
