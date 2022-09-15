@@ -30,9 +30,6 @@ for i in range(len(ids)):
     telegram_name = telegram_names[i]
     print('Chat id: {} ({})'.format(id, telegram_name))
 
-    asyncio.get_event_loop().run_until_complete(
-        bot.send_photo(
-            id, url, caption=title)
-    )
+    TelegramUtils.send_photo_sync(bot, id, title, url)
 
 print(Utils.total_time(start))

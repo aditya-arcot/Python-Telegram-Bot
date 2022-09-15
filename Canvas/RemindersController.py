@@ -45,7 +45,7 @@ if mode != None:
                 key = keys[canvas_names.index(telegram_name)]
 
                 messages = Todos.main(mode, key)
-                TelegramUtils.new_message(bot, id, messages)
+                TelegramUtils.send_message_sync(bot, id, messages)
 
             else:
                 print('Canvas todos not linked for this user!')

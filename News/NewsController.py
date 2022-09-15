@@ -30,6 +30,6 @@ for i in range(len(ids)):
     telegram_name = telegram_names[i]
     print('Chat id: {} ({})'.format(id, telegram_name))
 
-    TelegramUtils.new_message(bot, id, news_message, disable_web_page_preview=True)
+    TelegramUtils.send_message_sync(bot, id, news_message, disable_web_page_preview=True)
 
 print(Utils.total_time(start))

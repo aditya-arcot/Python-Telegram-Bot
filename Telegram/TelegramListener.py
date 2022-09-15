@@ -4,7 +4,6 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# parent dir
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 import WaitForInternet
@@ -13,30 +12,23 @@ WaitForInternet.main()
 from telegram import Update, Bot
 from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes
 
-# Canvas dir
+import Utils
+import RNG
+import TelegramUtils
+
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'Canvas'))
-
-# Weather dir
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'Weather'))
-
-# News dir
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'News'))
-
-# NASA dir
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'NASA'))
 
-import RNG
-import Weather
 import ReceiveTodoMessageController
-import TelegramUtils
-import Utils
+import Weather
 import News
 import NASA
 
-# read Telegram user info
 ids, names = TelegramUtils.get_users_info()
-
-token = TelegramUtils.get_token()
+token = TelegramUtils.get_token(sandbox=True) ## change back
+bot = Bot(token)
 
 # returns help messages
 def help_msg():
@@ -115,14 +107,14 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
                 out = News.main()
             elif cmd == 'nasa':
                 url, title = NASA.main()
-                await Bot(token).send_photo(photo=url, chat_id=id, caption=title)
+                await TelegramUtils.send_photo_sync(bot, id, title, url)
             else:
                 print('unknown cmd provided - {} - check code'.format(cmd))
         else:
             out = ['Unauthorized']
 
     if cmd != 'nasa':
-        await TelegramUtils.reply(update, out, disable_web_page_preview=True if cmd=='news' else None)
+        await TelegramUtils.send_message(bot, id, out, disable_web_page_preview=True if cmd=='news' else None)
     print(Utils.total_time(start))
 
 # other commands received
@@ -130,18 +122,18 @@ async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     start = time.time()
     user, id, msg, approved = msg_info(update)
     if approved:
-        await TelegramUtils.reply(update, ['Command not recognized'] + help_msg())
+        await TelegramUtils.send_message(bot, id, ['Command not recognized'] + help_msg())
     else:
-        await TelegramUtils.reply(update, ['Unauthorized'])
+        await TelegramUtils.send_message(bot, id ['Unauthorized'])
     print(Utils.total_time(start))
 
 async def msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     start = time.time()
     user, id, msg, approved = msg_info(update)
     if approved:
-        await TelegramUtils.reply(update, ['Please use commands, not messages'] + help_msg())
+        await TelegramUtils.send_message(bot, id, ['Please use commands, not messages'] + help_msg())
     else:
-        await TelegramUtils.reply(update, ['Unauthorized'])
+        await TelegramUtils.send_message(bot, id, ['Unauthorized'])
     print(Utils.total_time(start))
 
 if __name__ == '__main__':

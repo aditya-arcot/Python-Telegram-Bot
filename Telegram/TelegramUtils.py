@@ -2,24 +2,36 @@ import os, sys, time, asyncio
 from matplotlib import lines
 from telegram import Update, Bot
 
-async def reply(update: Update, out: list, parse_mode='HTML', disable_web_page_preview=None):
-    if len(out) > 0:
-        print('Sending messages:')
-        for i in out:
-            print(i)
-            await update.message.reply_text(i, parse_mode=parse_mode, disable_web_page_preview=disable_web_page_preview)
-        print()
+def send_photo_sync(bot: Bot, chat_id, title, url):
+    asyncio.get_event_loop().run_until_complete(
+        send_photo(
+            bot, chat_id, title, url
+        )
+    )
 
-def new_message(bot: Bot, chat_id, out: list, parse_mode='HTML', disable_web_page_preview=None):
+async def send_photo(bot: Bot, chat_id, title, url):
+    print('Sending photo: {}'.format(title))
+    print(url)
+    await bot.send_photo(chat_id, url, caption=title)
+    print()
+
+def send_message_sync(bot: Bot, chat_id, out: list, parse_mode='HTML', disable_web_page_preview=None):
+    asyncio.get_event_loop().run_until_complete(
+        send_message(
+            bot, chat_id, out, parse_mode=parse_mode,
+            disable_web_page_preview=disable_web_page_preview
+        )
+    )
+
+async def send_message(bot: Bot, chat_id, out: list, parse_mode='HTML', disable_web_page_preview=None):
     if len(out) > 0:
         print('Sending messages:')
         for i in out:
             print(i)
-            asyncio.get_event_loop().run_until_complete(
-                bot.send_message(
-                    chat_id=chat_id, text=i, parse_mode=parse_mode,
-                    disable_web_page_preview=disable_web_page_preview)
-            )
+            await bot.send_message(
+                chat_id=chat_id, text=i,
+                parse_mode=parse_mode,
+                disable_web_page_preview=disable_web_page_preview)
         print()
 
 def get_token(sandbox = False):
