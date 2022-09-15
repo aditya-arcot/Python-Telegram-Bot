@@ -46,7 +46,6 @@ def help_msg():
 # received message info
 # returns - username, user id, msg text, approval status
 def msg_info(update):
-    user = update.effective_chat.username
     id = update.effective_chat.id
     msg = update.message.text.lower()
 
@@ -55,7 +54,6 @@ def msg_info(update):
     print()
 
     print('Message received')
-    print('Username: {}'.format(user))
     print('Chat id: {}'.format(id))
     print('Message: {}'.format(msg))
     print()
@@ -63,15 +61,15 @@ def msg_info(update):
     if id not in ids:
         print('Unapproved sender')
         print()
-        return user, id, msg, False
+        return id, msg, False
 
     print('Approved sender: {}'.format(names[ids.index(id)]))
     print()
-    return user, id, msg, True
+    return id, msg, True
 
 async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
     start = time.time()
-    user, id, msg, approved = msg_info(update)
+    id, msg, approved = msg_info(update)
 
     msg_lst = msg.split()
     cmd = msg_lst[0][1:]
@@ -120,7 +118,7 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
 # other commands received
 async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     start = time.time()
-    user, id, msg, approved = msg_info(update)
+    id, msg, approved = msg_info(update)
     if approved:
         await TelegramUtils.send_message(bot, id, ['Command not recognized'] + help_msg())
     else:
@@ -129,7 +127,7 @@ async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     start = time.time()
-    user, id, msg, approved = msg_info(update)
+    id, msg, approved = msg_info(update)
     if approved:
         await TelegramUtils.send_message(bot, id, ['Please use commands, not messages'] + help_msg())
     else:
