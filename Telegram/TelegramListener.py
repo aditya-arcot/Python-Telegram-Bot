@@ -46,7 +46,7 @@ def help_msg():
     out += ' - /weather\n'
     out += ' - /news\n'
     out += ' - /rng min max [n]\n'
-    out += ' - /nasa'
+    out += ' - /nasa\n'
     out += ' - /ping\n'
     out += ' - /clear'
     return [out]
