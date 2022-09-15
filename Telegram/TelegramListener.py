@@ -27,7 +27,7 @@ import News
 import NASA
 
 ids, names = TelegramUtils.get_users_info()
-token = TelegramUtils.get_token(sandbox=True) ## change back
+token = TelegramUtils.get_token()
 bot = Bot(token)
 
 # returns help messages
