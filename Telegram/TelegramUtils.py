@@ -15,24 +15,28 @@ async def send_photo(bot: Bot, chat_id, title, url):
     await bot.send_photo(chat_id, url, caption=title)
     print()
 
-def send_message_sync(bot: Bot, chat_id, out: list, parse_mode='HTML', disable_web_page_preview=None):
+def send_message_sync(bot: Bot, chat_id, out: list, parse_mode='HTML', disable_web_page_preview=None, reply_markup=None):
     asyncio.get_event_loop().run_until_complete(
         send_message(
             bot, chat_id, out, parse_mode=parse_mode,
-            disable_web_page_preview=disable_web_page_preview
+            disable_web_page_preview=disable_web_page_preview,
+            reply_markup=reply_markup
         )
     )
 
-async def send_message(bot: Bot, chat_id, out: list, parse_mode='HTML', disable_web_page_preview=None):
-    if len(out) > 0:
-        print('Sending messages:')
-        for i in out:
-            print(i)
-            await bot.send_message(
-                chat_id=chat_id, text=i,
-                parse_mode=parse_mode,
-                disable_web_page_preview=disable_web_page_preview)
-        print()
+async def send_message(bot: Bot, chat_id, out: list, parse_mode='HTML', disable_web_page_preview=None, reply_markup=None):
+    if out != None:
+        if len(out) > 0:
+            print('Sending messages:')
+            for i in out:
+                print(i)
+                await bot.send_message(
+                    chat_id=chat_id, text=i,
+                    parse_mode=parse_mode,
+                    disable_web_page_preview=disable_web_page_preview,
+                    reply_markup=reply_markup
+                )
+            print()
 
 def get_token(sandbox = False):
     path = os.path.join(sys.path[0], '..', 'Telegram', 'token.txt')
