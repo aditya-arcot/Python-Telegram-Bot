@@ -2,17 +2,17 @@ import os, sys, time, asyncio
 from matplotlib import lines
 from telegram import Update, Bot
 
-def send_photo_sync(bot: Bot, chat_id, title, url):
+def send_photo_sync(bot: Bot, chat_id, title, photo):
     asyncio.get_event_loop().run_until_complete(
         send_photo(
-            bot, chat_id, title, url
+            bot, chat_id, title, photo
         )
     )
 
-async def send_photo(bot: Bot, chat_id, title, url):
+async def send_photo(bot: Bot, chat_id, title, photo):
     print('Sending photo: {}'.format(title))
-    print(url)
-    await bot.send_photo(chat_id, url, caption=title)
+    print(photo)
+    await bot.send_photo(chat_id, photo, caption=title)
     print()
 
 def send_message_sync(bot: Bot, chat_id, out: list, parse_mode='HTML', disable_web_page_preview=None, reply_markup=None):
