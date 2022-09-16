@@ -27,7 +27,7 @@ import News
 import NASA
 
 ids, names = TelegramUtils.get_users_info()
-token = TelegramUtils.get_token()
+token = TelegramUtils.get_token(sandbox=True)
 bot = Bot(token)
 
 # returns help messages
@@ -137,8 +137,9 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
             elif cmd == 'news':
                 out = News.main()
             elif cmd == 'nasa':
-                url, title = NASA.main()
-                await TelegramUtils.send_photo(bot, id, title, url)
+                filename, title = NASA.main()
+                with open(filename, 'rb') as image:
+                    await TelegramUtils.send_photo(bot, id, title, image)
             else:
                 print('unknown cmd provided - {} - check code'.format(cmd))
         else:
