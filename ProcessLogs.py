@@ -27,10 +27,12 @@ try:
     for f in logfiles:
         split = os.path.splitext(f)
         if split[1] == ".txt":
-            os.rename(os.path.join(log_path, f), os.path.join(archived_log_path, split[0] + "_" + yesterday_str + ".txt"))
+            os.rename(os.path.join(log_path, f), os.path.join(
+                archived_log_path, split[0] + "_" + yesterday_str + ".txt")
+            )
             archived.append(f)
 
-    print('archived {} logs'.format(len(archived)))
+    print(f'archived {len(archived)} logs')
     for i in archived:
         print(' - ' + i)
     print()
@@ -38,7 +40,8 @@ try:
 
     #delete logs more than 1 week old
     deleted = []
-    archived_logfiles = [f for f in os.listdir(archived_log_path) if os.path.isfile(os.path.join(archived_log_path, f))]
+    archived_logfiles = [f for f in os.listdir(archived_log_path)
+        if os.path.isfile(os.path.join(archived_log_path, f))]
     for f in archived_logfiles:
         split = os.path.splitext(f)
         if split[1] == ".txt":
@@ -48,12 +51,11 @@ try:
             if days > 7: #delete log
                 os.remove(os.path.join(archived_log_path, f))
                 deleted.append(f)
-    
-    print('deleted {} logs'.format(len(deleted)))
+
+    print(f'deleted {len(deleted)} logs')
     for i in deleted:
         print(' - ' + i)
     print()
-    
 
     print('runtime -', str(round(time.time() - start, 2)) + ' s')
 

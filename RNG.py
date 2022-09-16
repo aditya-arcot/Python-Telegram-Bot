@@ -5,9 +5,9 @@ def rand_generator(lower, upper, n = 1):
     seed = int(time.time())
     random.seed(seed)
 
-    out = '<b><u>{} random number(s) between {} and {}</u></b>'.format(n, lower, upper)
-    out += '\nseed: {}'.format(seed)
-    for i in range(n):
+    out = f'<b><u>{n} random number(s) between {lower} and {upper}</u></b>'
+    out += f'\nseed: {seed}'
+    for _ in range(n):
         out += '\n' + str(random.randint(lower, upper))
     return [out]
 
@@ -31,6 +31,5 @@ def main(args):
 
     if len(args_int) == 2:
         return rand_generator(lower, upper)
-    else:
-        n = args_int[2]
-        return rand_generator(lower, upper, n)
+    n = args_int[2]
+    return rand_generator(lower, upper, n)
