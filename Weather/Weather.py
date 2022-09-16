@@ -1,16 +1,10 @@
 import requests
-import geocoder
 from datetime import datetime
 import os
 import sys
 
-def main():
+def main(lat, lng):
     try:
-        g = geocoder.ip('me')
-        latlng = g.latlng
-        lat = latlng[0]
-        lng = latlng[1]
-
         path = os.path.join(sys.path[0], '..', 'Weather', 'key.txt')
         with open(path, 'r') as f:
             api_key = f.readlines()[0].strip()
@@ -26,7 +20,7 @@ def main():
             print('Error code {}'.format(x["cod"]))
             print(x["message"])
         else:
-            out = '<b><u>Weather for {}, {}:</u></b>\n'.format(g.city, g.state)
+            out = '<b><u>Weather for current location:</u></b>\n'
 
             curr = x['current']
             day = x['daily'][0]

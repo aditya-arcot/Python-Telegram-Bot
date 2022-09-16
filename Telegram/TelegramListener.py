@@ -9,8 +9,8 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import WaitForInternet
 WaitForInternet.main()
 
-from telegram import Update, Bot
-from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes
+from telegram import Update, Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
+from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, ConversationHandler
 
 import Utils
 import RNG
@@ -39,15 +39,14 @@ def help_msg():
     out += ' - /news\n'
     out += ' - /rng min max [n]\n'
     out += ' - /nasa\n'
-    out += ' - /ping\n'
     out += ' - /clear'
     return [out]
 
 # received message info
 # returns - username, user id, msg text, approval status
-def msg_info(update):
+def msg_info(update, text=True):
     id = update.effective_chat.id
-    msg = update.message.text.lower()
+    msg = update.message.text.lower() if text else 'non_text_msg'
 
     print('--------------------------')
     print(datetime.datetime.now())
@@ -66,6 +65,42 @@ def msg_info(update):
     print('Approved sender: {}'.format(names[ids.index(id)]))
     print()
     return id, msg, True
+
+
+LOCATION = 0
+
+async def weather_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    id, msg, approved = msg_info(update)
+    reply_markup=ReplyKeyboardMarkup(
+        [[KeyboardButton(
+            text="Send Location",
+            request_location=True,
+            one_time_keyboard=True)
+        ]]
+    )
+    await TelegramUtils.send_message(bot, id, ['Send location below or press /cancel'], reply_markup=reply_markup)
+
+    return LOCATION
+
+async def weather_main(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    id, msg, approved = msg_info(update, text=False)
+    loc = update.message.location
+    lat, lng = loc['latitude'], loc['longitude']
+    out = Weather.main(lat, lng)
+    reply_markup=ReplyKeyboardRemove()
+    await TelegramUtils.send_message(bot, id, out, reply_markup=reply_markup)
+
+    return ConversationHandler.END
+
+async def weather_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    id, msg, approved = msg_info(update)
+    await TelegramUtils.send_message(bot, id, ["Weather command canceled"], reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
+
+async def weather_timeout(update, context):
+    id = update.effective_chat.id
+    await TelegramUtils.send_message(bot, id, ["Weather command timeout"], reply_markup=ReplyKeyboardRemove())
+
 
 async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
     start = time.time()
@@ -88,8 +123,6 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
                 out = help_msg()
             elif cmd == 'ping':
                 out = ['pong']
-            elif cmd == 'weather':
-                out = Weather.main()
             elif cmd == 'todo':
                 out = ReceiveTodoMessageController.main(names[ids.index(id)])
                 if out == None:
@@ -105,7 +138,7 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
                 out = News.main()
             elif cmd == 'nasa':
                 url, title = NASA.main()
-                await TelegramUtils.send_photo_sync(bot, id, title, url)
+                await TelegramUtils.send_photo(bot, id, title, url)
             else:
                 print('unknown cmd provided - {} - check code'.format(cmd))
         else:
@@ -115,7 +148,6 @@ async def received_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
         await TelegramUtils.send_message(bot, id, out, disable_web_page_preview=True if cmd=='news' else None)
     print(Utils.total_time(start))
 
-# other commands received
 async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     start = time.time()
     id, msg, approved = msg_info(update)
@@ -134,13 +166,27 @@ async def msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await TelegramUtils.send_message(bot, id, ['Unauthorized'])
     print(Utils.total_time(start))
 
+CHAT_TIMEOUT = 30
+
 if __name__ == '__main__':
     app = ApplicationBuilder().token(token).build()
 
+    weather_handler = ConversationHandler(
+        entry_points=[CommandHandler("weather", weather_start)],
+            states={
+                LOCATION: [
+                    MessageHandler(filters.LOCATION, weather_main),
+                ],
+                ConversationHandler.TIMEOUT: [MessageHandler(filters.TEXT | filters.COMMAND, weather_timeout)],
+            },
+            fallbacks=[CommandHandler("cancel", weather_cancel)],
+            conversation_timeout=CHAT_TIMEOUT
+    )
+
+    app.add_handler(weather_handler)
     app.add_handler(CommandHandler("start", received_command))
     app.add_handler(CommandHandler("help", received_command))
     app.add_handler(CommandHandler("ping", received_command))
-    app.add_handler(CommandHandler("weather", received_command))
     app.add_handler(CommandHandler("todo", received_command))
     app.add_handler(CommandHandler("rng", received_command))
     app.add_handler(CommandHandler("clear", received_command))
