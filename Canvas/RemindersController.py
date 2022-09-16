@@ -44,8 +44,12 @@ if mode != None:
             if telegram_name in canvas_names:
                 key = keys[canvas_names.index(telegram_name)]
 
-                messages = Todos.main(mode, key)
-                TelegramUtils.send_message_sync(bot, id, messages)
+                try:
+                    messages = Todos.main(mode, key)
+                    TelegramUtils.send_message_sync(bot, id, messages)
+
+                except Exception as e: #unexpected Canvas API exception
+                    print(e)
 
             else:
                 print('Canvas todos not linked for this user!')
