@@ -33,7 +33,7 @@ import nasa
 wait_for_internet.main()
 
 telegram_ids, telegram_names = telegram_utils.get_users_info()
-token = telegram_utils.get_token(sandbox=True)
+token = telegram_utils.get_token()
 bot = Bot(token)
 
 def help_msg():
