@@ -35,8 +35,7 @@ import weather
 wait_for_internet.main()
 
 telegram_ids, telegram_names = telegram_utils.get_users_info()
-token = telegram_utils.get_token(sandbox=True if 'sandbox' in os.listdir()
-                                    else False)
+token = telegram_utils.get_token(sandbox = 'sandbox' in os.listdir())
 bot = Bot(token)
 
 def help_msg():
@@ -124,9 +123,8 @@ async def weather_timeout(update, _):
 
 LOWER, UPPER, NUMS = range(3)
 
-async def rng_start(update: Update, context):
-    '''Initial function in /rng command pipeline'''
-    '''Asks for lower bound'''
+async def rng_start(update: Update, _):
+    '''Initial function in /rng command pipeline, asks for lower bound'''
     user_id, _, _ = msg_info(update)
     await telegram_utils.send_message(bot, user_id, ['Enter lower bound or /cancel'])
 
@@ -149,8 +147,7 @@ async def rng_upper(update: Update, context):
     return NUMS
 
 async def rng_nums(update: Update, context):
-    '''Calls main code to generate random numbers'''
-    '''Clears stored data'''
+    '''Calls main code to generate random numbers, clears stored data'''
     user_data = context.user_data
     lower = user_data['lower']
     upper = user_data['upper']
@@ -187,9 +184,7 @@ async def received_command(update:Update, _):
     start = time.time()
     user_id, msg, approved = msg_info(update)
 
-    msg_lst = msg.split()
-    cmd = msg_lst[0][1:]
-    args = msg_lst[1:]
+    cmd = msg.split()[0][1:]
 
     out = []
     if cmd == 'start':
@@ -254,17 +249,17 @@ async def message(update: Update, _):
     print(utils.total_time(start))
 
 CHAT_TIMEOUT = 30
+INTEGERS_REGEX = '^-?\\d+$'
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(token).build()
 
-    integers_regex = '^-?\d+$'
     rng_handler = ConversationHandler(
         entry_points=[CommandHandler("rng", rng_start)],
         states={
-            LOWER: [MessageHandler(filters.Regex(integers_regex), rng_lower)],
-            UPPER: [MessageHandler(filters.Regex(integers_regex), rng_upper)],
-            NUMS: [MessageHandler(filters.Regex(integers_regex), rng_nums)],
+            LOWER: [MessageHandler(filters.Regex(INTEGERS_REGEX), rng_lower)],
+            UPPER: [MessageHandler(filters.Regex(INTEGERS_REGEX), rng_upper)],
+            NUMS: [MessageHandler(filters.Regex(INTEGERS_REGEX), rng_nums)],
             ConversationHandler.TIMEOUT: [MessageHandler(filters.TEXT | filters.COMMAND, \
                                             rng_timeout)],
         },

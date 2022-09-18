@@ -22,7 +22,8 @@ def rand_generator(lower, upper, nums = 1):
     random.seed(seed)
 
     out = f'<b><u>{nums} random number'
-    if nums > 1: out += 's'
+    if nums > 1:
+        out += 's'
     out += f' between {lower} and {upper}</u></b>'
     out += f'\nseed: {seed}'
     for _ in range(nums):
