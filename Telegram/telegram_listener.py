@@ -205,10 +205,10 @@ async def received_command(update:Update, _):
                 if out == []:
                     out = ['You are not registered for Canvas todos. Contact admin!']
             elif cmd == 'clear':
-                out = ''
+                out = '﹒'
                 for _ in range(50):
-                    out += '﹒\n'
-                out = [out]
+                    out += '‎​\n'
+                out = [out + '﹒']
             elif cmd == 'news':
                 out = news.main()
             elif cmd == 'nasa':
