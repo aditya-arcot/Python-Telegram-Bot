@@ -4,28 +4,15 @@ import random
 import time
 
 def main(args):
-    '''Checks & formats arguments and calls rand_generator'''
+    '''Checks arguments and calls rand_generator'''
 
-    if len(args) < 2:
-        return ['Too few arguments']
-    if len(args) > 3:
-        return ['Too many arguments']
+    lower = int(args[0])
+    upper = int(args[1])
+    nums = int(args[2])
 
-    args_int = []
-    for i in args:
-        try:
-            args_int.append(int(i))
-        except ValueError:
-            return ['Please input integers']
-
-    lower = args_int[0]
-    upper = args_int[1]
     if upper < lower:
         return ['Upper bound less than lower bound']
 
-    if len(args_int) == 2:
-        return rand_generator(lower, upper)
-    nums = args_int[2]
     return rand_generator(lower, upper, nums)
 
 def rand_generator(lower, upper, nums = 1):
@@ -34,7 +21,9 @@ def rand_generator(lower, upper, nums = 1):
     seed = int(time.time())
     random.seed(seed)
 
-    out = f'<b><u>{nums} random number(s) between {lower} and {upper}</u></b>'
+    out = f'<b><u>{nums} random number'
+    if nums > 1: out += 's'
+    out += f' between {lower} and {upper}</u></b>'
     out += f'\nseed: {seed}'
     for _ in range(nums):
         out += '\n' + str(random.randint(lower, upper))

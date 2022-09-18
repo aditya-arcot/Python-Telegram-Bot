@@ -13,22 +13,24 @@ logging.basicConfig(
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'Canvas'))
-sys.path.insert(1, os.path.join(sys.path[0], '..', 'Weather'))
-sys.path.insert(1, os.path.join(sys.path[0], '..', 'News'))
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'NASA'))
+sys.path.insert(1, os.path.join(sys.path[0], '..', 'News'))
+sys.path.insert(1, os.path.join(sys.path[0], '..', 'Weather'))
 
 from telegram import Update, Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
 from telegram.ext import filters, ApplicationBuilder, CommandHandler, \
                             MessageHandler, ConversationHandler
 
+import telegram_utils
+
 import utils
 import random_number_generator
-import telegram_utils
 import wait_for_internet
+
 import receive_todo_message_controller
-import weather
-import news
 import nasa
+import news
+import weather
 
 wait_for_internet.main()
 
@@ -39,14 +41,18 @@ bot = Bot(token)
 
 def help_msg():
     '''Returns help message with list of commands'''
+    commands = ['help - Available commands',
+                'todo - Canvas todos',
+                'weather - Local weather info',
+                'news - Top 10 US news headlines',
+                'nasa - NASA astronomy pic of the day',
+                'rng - Random number generator',
+                'clear - Clear screen']
+
     out = '<b><u>Supported commands:</u></b>\n'
-    out += ' - /help\n'
-    out += ' - /todo\n'
-    out += ' - /weather\n'
-    out += ' - /news\n'
-    out += ' - /rng min max [n]\n'
-    out += ' - /nasa\n'
-    out += ' - /clear'
+    for command in commands:
+        out += ' - /' + command + '\n'
+
     return [out]
 
 def msg_info(update, text=True):
@@ -86,7 +92,7 @@ async def weather_start(update: Update, _) -> int:
             one_time_keyboard=True)
         ]]
     )
-    await telegram_utils.send_message(bot, user_id, ['Send location below or press /cancel'],
+    await telegram_utils.send_message(bot, user_id, ['Send location or /cancel'],
                                         reply_markup=reply_markup)
 
     return LOCATION
@@ -113,6 +119,65 @@ async def weather_timeout(update, _):
     '''/weather command timeout'''
     user_id = update.effective_chat.id
     await telegram_utils.send_message(bot, user_id, ["Weather command timeout"],
+                                        reply_markup=ReplyKeyboardRemove())
+
+
+LOWER, UPPER, NUMS = range(3)
+
+async def rng_start(update: Update, context):
+    '''Initial function in /rng command pipeline'''
+    '''Asks for lower bound'''
+    user_id, _, _ = msg_info(update)
+    await telegram_utils.send_message(bot, user_id, ['Enter lower bound or /cancel'])
+
+    return LOWER
+
+async def rng_lower(update: Update, context):
+    '''Stores lower bound and asks for upper bound'''
+    context.user_data['lower'] = update.message.text
+    user_id, _, _ = msg_info(update)
+    await telegram_utils.send_message(bot, user_id, ['Enter upper bound or /cancel'])
+
+    return UPPER
+
+async def rng_upper(update: Update, context):
+    '''Stores upper bound and asks for nums'''
+    context.user_data['upper'] = update.message.text
+    user_id, _, _ = msg_info(update)
+    await telegram_utils.send_message(bot, user_id, ['Enter number of values or /cancel'])
+
+    return NUMS
+
+async def rng_nums(update: Update, context):
+    '''Calls main code to generate random numbers'''
+    '''Clears stored data'''
+    user_data = context.user_data
+    lower = user_data['lower']
+    upper = user_data['upper']
+    nums = update.message.text
+
+    out = random_number_generator.main([lower,upper,nums])
+
+    user_data.clear()
+
+    user_id = update.effective_chat.id
+    await telegram_utils.send_message(bot, user_id, out)
+
+    return ConversationHandler.END
+
+async def rng_cancel(update: Update, context):
+    '''/cancel command passed during /rng pipeline'''
+    context.user_data.clear()
+    user_id, _, _ = msg_info(update)
+    await telegram_utils.send_message(bot, user_id, ["RNG command canceled"],
+                                        reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
+
+async def rng_timeout(update: Update, context):
+    '''/rng command timeout'''
+    context.user_data.clear()
+    user_id = update.effective_chat.id
+    await telegram_utils.send_message(bot, user_id, ["RNG command timeout"],
                                         reply_markup=ReplyKeyboardRemove())
 
 
@@ -144,8 +209,6 @@ async def received_command(update:Update, _):
                         telegram_names[telegram_ids.index(user_id)])
                 if out == []:
                     out = ['You are not registered for Canvas todos. Contact admin!']
-            elif cmd == 'rng':
-                out = random_number_generator.main(args)
             elif cmd == 'clear':
                 out = ''
                 for _ in range(50):
@@ -195,25 +258,39 @@ CHAT_TIMEOUT = 30
 if __name__ == '__main__':
     app = ApplicationBuilder().token(token).build()
 
+    integers_regex = '^-?\d+$'
+    rng_handler = ConversationHandler(
+        entry_points=[CommandHandler("rng", rng_start)],
+        states={
+            LOWER: [MessageHandler(filters.Regex(integers_regex), rng_lower)],
+            UPPER: [MessageHandler(filters.Regex(integers_regex), rng_upper)],
+            NUMS: [MessageHandler(filters.Regex(integers_regex), rng_nums)],
+            ConversationHandler.TIMEOUT: [MessageHandler(filters.TEXT | filters.COMMAND, \
+                                            rng_timeout)],
+        },
+        fallbacks=[CommandHandler("cancel", rng_cancel)],
+        conversation_timeout=CHAT_TIMEOUT
+    )
+
     weather_handler = ConversationHandler(
         entry_points=[CommandHandler("weather", weather_start)],
-            states={
-                LOCATION: [
-                    MessageHandler(filters.LOCATION, weather_main),
-                ],
-                ConversationHandler.TIMEOUT: [MessageHandler(filters.TEXT | filters.COMMAND, \
-                                                weather_timeout)],
-            },
-            fallbacks=[CommandHandler("cancel", weather_cancel)],
-            conversation_timeout=CHAT_TIMEOUT
+        states={
+            LOCATION: [
+                MessageHandler(filters.LOCATION, weather_main),
+            ],
+            ConversationHandler.TIMEOUT: [MessageHandler(filters.TEXT | filters.COMMAND, \
+                                            weather_timeout)],
+        },
+        fallbacks=[CommandHandler("cancel", weather_cancel)],
+        conversation_timeout=CHAT_TIMEOUT
     )
 
     app.add_handler(weather_handler)
+    app.add_handler(rng_handler)
     app.add_handler(CommandHandler("start", received_command))
     app.add_handler(CommandHandler("help", received_command))
     app.add_handler(CommandHandler("ping", received_command))
     app.add_handler(CommandHandler("todo", received_command))
-    app.add_handler(CommandHandler("rng", received_command))
     app.add_handler(CommandHandler("clear", received_command))
     app.add_handler(CommandHandler("news", received_command))
     app.add_handler(CommandHandler("nasa", received_command))
