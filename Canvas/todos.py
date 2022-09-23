@@ -6,22 +6,21 @@ import arrow
 
 import canvas_utils
 
-URL = 'https://utexas.instructure.com'
 MIN_DIFF = timedelta()
 MAX_DIFF = timedelta(hours=12)
 
-def main(mode, key):
+def main(mode, key, URL):
     '''Handles initial call based on mode'''
 
     if mode == 'all': #send all reminders
-        return get_todos(key)
+        return get_todos(key, URL)
 
     if mode == 'urgent': #send urgent reminders
-        return get_reminders(key)
+        return get_reminders(key, URL)
 
     return 'illegal mode'
 
-def get_all_todo_attributes(key):
+def get_all_todo_attributes(key, URL):
     '''Get attributes of assignment todos (name, date, course_code)'''
 
     canvas = Canvas(URL, key)
@@ -41,7 +40,11 @@ def get_all_todo_attributes(key):
         course_id = data['course_id']
         course = canvas.get_course(course_id)
         course_code = course.course_code.split(' ')
-        modified_course_code = (''.join(course_code[:-1]) + ' ' + course_code[-1]).upper()
+        modified_course_code = course_code
+        if 'houston' in URL:
+            modified_course_code = ' '.join(course_code[:-5])
+        elif 'utexas' in URL:
+            modified_course_code = (''.join(course_code[:-1]) + ' ' + course_code[-1]).upper()
 
         all_todo_attributes.append([data['name'], date, modified_course_code])
 
@@ -71,10 +74,10 @@ def sort_todo_attributes(attributes):
 
     return sorted(attributes, key = lambda x: x[1])
 
-def get_todos(key):
+def get_todos(key, URL):
     '''Get todos for the next week'''
 
-    all_todo_attributes = get_all_todo_attributes(key)
+    all_todo_attributes = get_all_todo_attributes(key, URL)
 
     curr = datetime.now()
     if len(all_todo_attributes) == 0:
@@ -105,11 +108,11 @@ def get_todos(key):
 
     return [out_str]
 
-def get_reminders(key):
+def get_reminders(key, URL):
     '''Get reminders for urgent todos'''
 
     #list of [name, Arrow object, course code]
-    all_todo_attributes = get_all_todo_attributes(key)
+    all_todo_attributes = get_all_todo_attributes(key, URL)
 
     #list of [name, Arrow object, course code, time diff]
     filtered_todo_attributes = sort_todo_attributes(filter_todos(all_todo_attributes))

@@ -24,7 +24,7 @@ print('--------------------------')
 print(datetime.datetime.now())
 print()
 
-canvas_names, keys = canvas_utils.get_canvas_users_info()
+canvas_names, keys, URLs = canvas_utils.get_canvas_users_info()
 telegram_ids, telegram_names = telegram_utils.get_users_info()
 bot = Bot(telegram_utils.get_token())
 
@@ -43,10 +43,12 @@ if MODE is not None:
             print(f'Chat id: {telegram_id} ({telegram_name})')
 
             if telegram_name in canvas_names:
-                key = keys[canvas_names.index(telegram_name)]
+                ind = canvas_names.index(telegram_name)
+                key = keys[ind]
+                URL = URLs[ind]
 
                 try:
-                    messages = todos.main(MODE, key)
+                    messages = todos.main(MODE, key, URL)
                     telegram_utils.send_message_sync(bot, telegram_id, messages)
 
                 except canvasapi.exceptions.CanvasException as e:

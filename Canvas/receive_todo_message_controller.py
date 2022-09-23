@@ -3,12 +3,14 @@
 import todos
 import canvas_utils
 
-names, keys = canvas_utils.get_canvas_users_info()
+names, keys, URLs = canvas_utils.get_canvas_users_info()
 
 def main(name):
     '''Check if name is connected to Canvas and return todos'''
 
     if name in names:
-        key = keys[names.index(name)]
-        return todos.main('all', key)
+        ind = names.index(name)
+        key = keys[ind]
+        URL = URLs[ind]
+        return todos.main('all', key, URL)
     return []
