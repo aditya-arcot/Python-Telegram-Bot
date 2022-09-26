@@ -17,7 +17,7 @@ def send_photo_sync(bot: Bot, chat_id, title, photo):
 async def send_photo(bot: Bot, chat_id, title, photo):
     '''Send photo from asynchronous context'''
 
-    print('Sending photo: {title}')
+    print(f'Sending photo: {title}')
     print(photo)
     await bot.send_photo(chat_id, photo, caption=title)
     print()
