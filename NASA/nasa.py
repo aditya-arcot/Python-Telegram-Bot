@@ -6,8 +6,10 @@ from datetime import date
 import urllib.request
 import nasapy
 
-FILENAME = 'nasa-pod'
 NASA_DIR = os.path.join(sys.path[0], '..', 'NASA')
+KEY_PATH = os.path.join(NASA_DIR, 'key.txt')
+IMAGE_PATH = os.path.join(NASA_DIR, 'nasa-pod')
+LAST_UPDATE_PATH = os.path.join(NASA_DIR, 'last-updated')
 
 
 def main():
@@ -22,25 +24,26 @@ def main():
 
     updated = ''
     try:
-        with open(os.path.join(NASA_DIR, 'last-updated'), 'r', encoding='ascii') as file:
+        with open(LAST_UPDATE_PATH, 'r', encoding='ascii') as file:
             updated = file.readlines()[0].strip('\n')
     except FileNotFoundError:
         print('last-updated file not present')
 
     if updated != today_str:
         print('pic not updated - downloading pic, updating last-updated')
-        urllib.request.urlretrieve(url, os.path.join(NASA_DIR, FILENAME))
-        with open(os.path.join(NASA_DIR, 'last-updated'), 'w', encoding='ascii') as file:
+        if os.path.exists(IMAGE_PATH):
+            os.remove(IMAGE_PATH)
+        urllib.request.urlretrieve(url, IMAGE_PATH)
+        with open(LAST_UPDATE_PATH, 'w', encoding='ascii') as file:
             file.write(today_str)
 
-    return os.path.abspath(os.path.join(NASA_DIR, FILENAME)), title
+    return os.path.abspath(IMAGE_PATH), title
 
 
 def get_pic_info():
     '''Requests NASA API for picture of the day url and title'''
 
-    path = os.path.join(NASA_DIR, 'key.txt')
-    with open(path, 'r', encoding='ascii') as file:
+    with open(KEY_PATH, 'r', encoding='ascii') as file:
         api_key = file.readlines()[0].strip()
 
     nasa = nasapy.Nasa(key = api_key)
