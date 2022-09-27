@@ -213,8 +213,11 @@ async def received_command(update:Update, _):
                 out = news.main()
             elif cmd == 'nasa':
                 filename, title = nasa.main()
-                with open(filename, 'rb') as image:
-                    await telegram_utils.send_photo(bot, user_id, title, image)
+                if filename == None:
+                    await telegram_utils.send_message(bot, user_id, ['No image today, sorry!'])
+                else:
+                    with open(filename, 'rb') as image:
+                        await telegram_utils.send_photo(bot, user_id, title, image)
             else:
                 print(f'unknown cmd provided - {cmd} - check code')
         else:

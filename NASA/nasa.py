@@ -20,6 +20,11 @@ def main():
     '''
 
     url, title = get_pic_info()
+
+    if url == None:
+        print('skipping')
+        return None, title
+
     today_str = str(date.today())
 
     updated = ''
@@ -50,6 +55,11 @@ def get_pic_info():
 
     pic = nasa.picture_of_the_day()
     title = pic['title']
+
+    if not 'hdurl' in pic.keys():
+        print('no picture for today, only video')
+        return None, title
+
     url = pic['hdurl']
 
     return url, title
