@@ -45,6 +45,9 @@ def get_all_todo_attributes(key, URL):
             modified_course_code = ' '.join(course_code[:-5])
         elif 'utexas' in URL:
             modified_course_code = (''.join(course_code[:-1]) + ' ' + course_code[-1]).upper()
+        elif 'uth' in URL:
+            course_code = [i for i in re.split('(\d+)', ''.join(course_code)) if i != ''][1:-1]
+            modified_course_code = course_code[0] + ' ' + ''.join(course_code[1:])
 
         all_todo_attributes.append([data['name'], date, modified_course_code])
 
