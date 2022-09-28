@@ -3,6 +3,7 @@
 from datetime import timedelta, datetime
 from canvasapi import Canvas
 import arrow
+import re
 
 import canvas_utils
 
