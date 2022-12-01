@@ -15,12 +15,13 @@ while True:
     except:
         print('-> exception')
         print(data)
+        print()
         continue
         
     print(data)
 
     if data == 'wake desktop':
-        process = subprocess.Popen(['wakeonlan', '-p', '50200', 'A4:BB:6D:54:ED:8C'], 
+        process = subprocess.Popen(['wakeonlan', 'A4:BB:6D:54:ED:8C'], 
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         
