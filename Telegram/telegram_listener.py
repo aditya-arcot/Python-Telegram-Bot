@@ -16,21 +16,21 @@ sys.path.insert(1, os.path.join(sys.path[0], '..', 'Canvas'))
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'NASA'))
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'News'))
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'Weather'))
+sys.path.insert(1, os.path.join(sys.path[0], '..', '..', 'Utilities'))
 
 from telegram import Update, Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
 from telegram.ext import filters, ApplicationBuilder, CommandHandler, \
                             MessageHandler, ConversationHandler
 
 import telegram_utils
-
-import utils
 import random_number_generator
-import wait_for_internet
-
 import receive_todo_message_controller
 import nasa
 import news
 import weather
+
+import utils
+import wait_for_internet
 
 wait_for_internet.main()
 
