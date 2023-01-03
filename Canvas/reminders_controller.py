@@ -10,12 +10,14 @@ import canvasapi
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'Telegram'))
+sys.path.insert(1, os.path.join(sys.path[0], '..', '..', 'Utilities'))
 
 import wait_for_internet
+import utils
+
 import todos
 import canvas_utils
 import telegram_utils
-import utils
 
 wait_for_internet.main()
 

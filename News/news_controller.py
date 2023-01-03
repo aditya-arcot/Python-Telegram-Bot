@@ -9,10 +9,12 @@ from telegram import Bot
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'Telegram'))
+sys.path.insert(1, os.path.join(sys.path[0], '..', '..', 'Utilities'))
 
 import wait_for_internet
-import telegram_utils
 import utils
+
+import telegram_utils
 import news
 
 wait_for_internet.main()
