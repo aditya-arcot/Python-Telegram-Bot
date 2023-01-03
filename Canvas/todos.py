@@ -1,6 +1,7 @@
 '''Core Canvas assignment todo code'''
 
 from datetime import timedelta, datetime
+from ssl import SSLCertVerificationError
 from canvasapi import Canvas
 import arrow
 import re
@@ -28,29 +29,35 @@ def get_all_todo_attributes(key, URL):
     todos = canvas.get_todo_items()
 
     all_todo_attributes = []
-    for todo in todos:
-        data = getattr(todo, 'assignment')
 
-        date = data['due_at']
-        #parse due date
-        #convert UTC to Central
-        #tz changes between -5 and -6 depending on DST
-        if date is not None:
-            date = arrow.get(date, 'YYYY-MM-DDTHH:mm:ssZ').to('US/Central')
+    try:
+        for todo in todos:
+            data = getattr(todo, 'assignment')
 
-        course_id = data['course_id']
-        course = canvas.get_course(course_id)
-        course_code = course.course_code.split(' ')
-        modified_course_code = course_code
-        if 'houston' in URL:
-            modified_course_code = ' '.join(course_code[:-5])
-        elif 'utexas' in URL:
-            modified_course_code = (''.join(course_code[:-1]) + ' ' + course_code[-1]).upper()
-        elif 'uth' in URL:
-            course_code = [i for i in re.split('(\d+)', ''.join(course_code)) if i != ''][1:-1]
-            modified_course_code = course_code[0] + ' ' + ''.join(course_code[1:])
+            date = data['due_at']
+            #parse due date
+            #convert UTC to Central
+            #tz changes between -5 and -6 depending on DST
+            if date is not None:
+                date = arrow.get(date, 'YYYY-MM-DDTHH:mm:ssZ').to('US/Central')
 
-        all_todo_attributes.append([data['name'], date, modified_course_code])
+            course_id = data['course_id']
+            course = canvas.get_course(course_id)
+            course_code = course.course_code.split(' ')
+            modified_course_code = course_code
+            if 'houston' in URL:
+                modified_course_code = ' '.join(course_code[:-5])
+            elif 'utexas' in URL:
+                modified_course_code = (''.join(course_code[:-1]) + ' ' + course_code[-1]).upper()
+            elif 'uth' in URL:
+                course_code = [i for i in re.split('(\d+)', ''.join(course_code)) if i != ''][1:-1]
+                modified_course_code = course_code[0] + ' ' + ''.join(course_code[1:])
+
+            all_todo_attributes.append([data['name'], date, modified_course_code])
+    except SSLCertVerificationError as err:
+        print('SSLCertVerificationError - exiting')
+        print()
+        print()
 
     #test_attributes = ['test', arrow.get('2022-03-30T10:00:00Z').replace(tzinfo='US/Central')]
     #all_todo_attributes.append(test_attributes)
