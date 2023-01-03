@@ -28,7 +28,7 @@ Omitting a Telegram file will render the bot unable to communicate at all, but o
 - News/key.txt
   - [News API](https://newsapi.org) key
 - Telegram/token.txt
-  - [Telegram bot](core.telegram.org/bots/features#botfather) token
+  - [Telegram bot](https://core.telegram.org/bots/features#botfather) token
 - Telegram/users.txt
   - Each line contains a name and the corresponding Telegram user ID
   - User names are arbitrary, but should match an entry in Canvas users file for users that are registered for Canvas
