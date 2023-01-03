@@ -87,8 +87,7 @@ async def weather_start(update: Update, _) -> int:
     reply_markup=ReplyKeyboardMarkup(
         [[KeyboardButton(
             text="Send Location",
-            request_location=True,
-            one_time_keyboard=True)
+            request_location=True)
         ]]
     )
     await telegram_utils.send_message(bot, user_id, ['Send location or /cancel'],
