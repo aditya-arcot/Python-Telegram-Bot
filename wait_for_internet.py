@@ -6,13 +6,20 @@ import urllib3
 def main():
     '''Loop for checking for Internet connection'''
 
-    while True:
+    curr_time = 0
+    max_time = 60
+
+    while curr_time < max_time:
         print('\nattempting internet connection')
         if test_connection():
             print('internet connected\n')
-            break
+            return
         print('sleeping for 5s')
         time.sleep(5)
+        curr_time += 5
+
+    print('\nmax time (60s) exceeded')
+    print('rerun calling program when internet connection is restored')
 
 def test_connection():
     '''Core code for checking internet connection'''
