@@ -66,12 +66,12 @@ def get_users_info():
 
     path = os.path.join(sys.path[0], '..', 'Telegram', 'users.txt')
 
-    ids, names = [], []
+    names, ids = [], []
     with open(path, "r", encoding='ascii') as file:
         for line in file:
             lst = line.strip().split('\t')
 
-            ids.append(int(lst[0]))
-            names.append(lst[1])
+            names.append(lst[0])
+            ids.append(int(lst[1]))
 
     return ids, names
