@@ -39,11 +39,12 @@ Omitting a Telegram file will render the bot unable to communicate at all, but o
   - Todo functionality is attempted for unsupported versions of Canvas, but it may cause unexpected errors
 
 
-## Important dependencies
-- Python Telegram Bot 20.0
-- Canvas API 3.0.0
-- Arrow 1.2.3
-- NasaPy 0.2.7
+## Non-standard dependencies
+Install using pip
+- Python Telegram Bot (python-telegram-bot) 20.0
+- Canvas API (canvasapi) 3.0.0
+- NasaPy (nasapy) 0.2.7
+- Pandas (pandas) 1.5.2
 
 
 ## Usage
