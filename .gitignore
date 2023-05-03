@@ -1,13 +1,9 @@
 .DS_Store
-._.DS_Store
 .cache_ggshield
 .env
-*.swp
 __pycache__/
 
-Logs/
-
-Testing/
+dev/
 
 Telegram/token.txt
 Telegram/users*.txt
