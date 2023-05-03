@@ -30,7 +30,7 @@ Omitting a Telegram file will render the bot unable to communicate at all, but o
 - Telegram/token.txt
   - [Telegram bot](https://core.telegram.org/bots/features#botfather) token
 - Telegram/users.txt
-  - Each line contains a name and the corresponding Telegram user ID
+  - Each line contains a name and the corresponding Telegram user ID, separated by a tab
   - User names are arbitrary, but should match an entry in Canvas users file for users that are registered for Canvas
 - Canvas/users.txt
   - Each line contains a name and CanvasAPI key, separated by a tab
