@@ -36,8 +36,7 @@ def help_msg():
                 'weather - Local weather info',
                 'news - Top 10 US news headlines',
                 'nasa - NASA astronomy pic of the day',
-                'rng - Random number generator',
-                'clear - Clear screen']
+                'rng - Random number generator']
 
     out = '<b><u>Supported commands:</u></b>\n'
     for command in commands:
