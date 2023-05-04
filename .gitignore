@@ -1,9 +1,11 @@
 .DS_Store
 .cache_ggshield
 .env
-__pycache__/
 
+__pycache__/
+.vscode/
 dev/
+secrets/
 
 Telegram/token.txt
 Telegram/users*.txt

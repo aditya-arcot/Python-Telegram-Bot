@@ -8,55 +8,62 @@ import os
 from telegram import Bot
 import canvasapi
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import todos
+
+sys.path.insert(1, os.path.join(sys.path[0], '..', 'Utilities'))
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'Telegram'))
-sys.path.insert(1, os.path.join(sys.path[0], '..', '..', 'Utilities'))
 
 import wait_for_internet
-import utils
-
-import todos
-import canvas_utils
+import general
+import key_manager
+import user_manager
 import telegram_utils
 
-wait_for_internet.main()
+def main():
+    '''driver for urgent / all reminders'''
 
-start = time.time()
-print('--------------------------')
-print(datetime.datetime.now())
-print()
+    wait_for_internet.main()
 
-canvas_names, keys, URLs = canvas_utils.get_canvas_users_info()
-telegram_ids, telegram_names = telegram_utils.get_users_info()
-bot = Bot(telegram_utils.get_token())
+    start = time.time()
+    print('--------------------------')
+    print(datetime.datetime.now())
+    print()
 
-MODE = None
-try:
-    MODE = sys.argv[1]
-except IndexError:
-    print('no mode passed!')
+    try:
+        mode = sys.argv[1]
+    except IndexError:
+        print('no mode passed!')
+        print(general.total_time(start))
+        return
 
-if MODE is not None:
-    if MODE not in ('all', 'urgent'):
-        print(f'unknown mode passed! - {MODE}')
-    else:
-        for n, telegram_id in enumerate(telegram_ids):
-            telegram_name = telegram_names[n]
-            print(f'Chat id: {telegram_id} ({telegram_name})')
+    if mode not in ('all', 'urgent'):
+        print(f'unknown mode passed! - {mode}')
+        print(general.total_time(start))
+        return
 
-            if telegram_name in canvas_names:
-                ind = canvas_names.index(telegram_name)
-                key = keys[ind]
-                URL = URLs[ind]
+    _key_manager = key_manager.KeyManager(os.path.join(sys.path[0], '..', 'secrets', 'config.ini'))
+    bot = Bot(_key_manager.get_telegram_key())
 
-                try:
-                    messages = todos.main(MODE, key, URL)
-                    telegram_utils.send_message_sync(bot, telegram_id, messages)
+    _user_manager = user_manager.UserManager(os.path.join(sys.path[0], '..', 'secrets', \
+                                                            'user_info.json'))
+    canvas_telegram_users = _user_manager.get_all_active_canvas_telegram_users()
 
-                except canvasapi.exceptions.CanvasException as e:
-                    print(e)
+    for user in canvas_telegram_users:
+        name = user.name
+        telegram_id = user.telegram_id
 
-            else:
-                print('Canvas todos not linked for this user!')
+        print(f'Chat id: {telegram_id} ({name})')
 
-print(utils.total_time(start))
+        canvas_key = user.canvas_key
+        canvas_url = user.canvas_url
+
+        try:
+            messages = todos.main(mode, canvas_key, canvas_url)
+            telegram_utils.send_message_sync(bot, telegram_id, messages)
+        except canvasapi.exceptions.CanvasException as ex:
+            print(ex)
+
+    print(general.total_time(start))
+
+if __name__ == '__main__':
+    main()

@@ -1,27 +1,24 @@
 '''NASA picture of the day'''
 
 import os
-import sys
 from datetime import date
 import urllib.request
 import nasapy
 
-NASA_DIR = os.path.join(sys.path[0], '..', 'NASA')
-KEY_PATH = os.path.join(NASA_DIR, 'key.txt')
-IMAGE_PATH = os.path.join(NASA_DIR, 'nasa-pod')
-LAST_UPDATE_PATH = os.path.join(NASA_DIR, 'last-updated')
-
-
-def main():
+def main(api_key):
     '''
     Gets picture of the day info
     Checks if local file is updated & downloads if not
     Returns file and title
     '''
 
-    url, title = get_pic_info()
+    nasa_dir = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(nasa_dir, 'nasa-pod')
+    last_update_path = os.path.join(nasa_dir, 'last-updated')
 
-    if url == None:
+    url, title = get_pic_info(api_key)
+
+    if url is None:
         print('skipping')
         return None, title
 
@@ -29,27 +26,24 @@ def main():
 
     updated = ''
     try:
-        with open(LAST_UPDATE_PATH, 'r', encoding='ascii') as file:
+        with open(last_update_path, 'r', encoding='ascii') as file:
             updated = file.readlines()[0].strip('\n')
     except FileNotFoundError:
         print('last-updated file not present')
 
     if updated != today_str:
         print('pic not updated - downloading pic, updating last-updated')
-        if os.path.exists(IMAGE_PATH):
-            os.remove(IMAGE_PATH)
-        urllib.request.urlretrieve(url, IMAGE_PATH)
-        with open(LAST_UPDATE_PATH, 'w', encoding='ascii') as file:
+        if os.path.exists(image_path):
+            os.remove(image_path)
+        urllib.request.urlretrieve(url, image_path)
+        with open(last_update_path, 'w', encoding='ascii') as file:
             file.write(today_str)
 
-    return os.path.abspath(IMAGE_PATH), title
+    return os.path.abspath(image_path), title
 
 
-def get_pic_info():
+def get_pic_info(api_key):
     '''Requests NASA API for picture of the day url and title'''
-
-    with open(KEY_PATH, 'r', encoding='ascii') as file:
-        api_key = file.readlines()[0].strip()
 
     nasa = nasapy.Nasa(key = api_key)
 

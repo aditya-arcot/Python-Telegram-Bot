@@ -1,8 +1,5 @@
 '''Canvas utility functions'''
 
-import os
-import sys
-
 def get_output_string(string):
     '''Apply other functions and return output string'''
 
@@ -35,19 +32,3 @@ def round_to_nearest_tenth(num):
     if split[1] == '0':
         return int(out)
     return round(out, 2)
-
-DEFAULT_URL = 'https://utexas.instructure.com'
-def get_canvas_users_info():
-    '''Return registered Canvas names, keys'''
-
-    path = os.path.join(sys.path[0], '..', 'Canvas', 'users.txt')
-    names, keys, URLs = [], [], []
-    with open(path, "r", encoding='ascii') as file:
-        for line in file:
-            lst = line.strip().split('\t')
-
-            names.append(lst[0])
-            keys.append(lst[1])
-            URLs.append(lst[2] if len(lst) == 3 else DEFAULT_URL)
-
-    return names, keys, URLs

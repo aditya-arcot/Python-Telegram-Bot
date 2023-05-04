@@ -7,32 +7,40 @@ import datetime
 
 from telegram import Bot
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], '..', 'Utilities'))
 sys.path.insert(1, os.path.join(sys.path[0], '..', 'Telegram'))
-sys.path.insert(1, os.path.join(sys.path[0], '..', '..', 'Utilities'))
 
 import wait_for_internet
-import utils
-
+import general
+import key_manager
+import user_manager
 import telegram_utils
 import news
 
-wait_for_internet.main()
+def main():
+    '''driver for news messages'''
 
-start = time.time()
-print('--------------------------')
-print(datetime.datetime.now())
-print()
+    wait_for_internet.main()
 
-telegram_ids, telegram_names = telegram_utils.get_users_info()
-bot = Bot(telegram_utils.get_token())
+    start = time.time()
+    print('--------------------------')
+    print(datetime.datetime.now())
+    print()
 
-news_message = news.main()
+    _key_manager = key_manager.KeyManager(os.path.join(sys.path[0], '..', 'secrets', 'config.ini'))
+    bot = Bot(_key_manager.get_telegram_key())
 
-for n, user_id in enumerate(telegram_ids):
-    telegram_name = telegram_names[n]
-    print(f'Chat id: {user_id} ({telegram_name})')
+    news_message = news.main(_key_manager.get_news_key())
 
-    telegram_utils.send_message_sync(bot, user_id, news_message, disable_web_page_preview=True)
+    _user_manager = user_manager.UserManager(os.path.join(sys.path[0], '..', 'secrets', \
+                                                            'user_info.json'))
+    users = _user_manager.get_all_active_telegram_users()
+    for user in users:
+        print(f'Chat id: {user.telegram_id} ({user.name})')
+        telegram_utils.send_message_sync(bot, user.telegram_id, news_message, \
+                                         disable_web_page_preview=True)
 
-print(utils.total_time(start))
+    print(general.total_time(start))
+
+if __name__ == '__main__':
+    main()

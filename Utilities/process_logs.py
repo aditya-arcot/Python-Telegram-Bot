@@ -1,3 +1,10 @@
+'''archives, deletes log files'''
+
+import datetime
+import os
+import time
+import sys
+
 '''
 Archive yesterday's logs
 Delete logs older than a week
@@ -18,11 +25,6 @@ Process
     Delete
         Log files in archived folder with a date older than 1 week are deleted
 '''
-
-import datetime
-import os
-import time
-import sys
 
 start = time.time()
 

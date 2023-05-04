@@ -2,30 +2,35 @@
 
 from datetime import timedelta, datetime
 from ssl import SSLCertVerificationError
+import re
+
 from canvasapi import Canvas
 import arrow
-import re
 
 import canvas_utils
 
 MIN_DIFF = timedelta()
 MAX_DIFF = timedelta(hours=12)
+DEFAULT_URL = 'https://utexas.instructure.com'
 
-def main(mode, key, URL):
+def main(mode, key, url):
     '''Handles initial call based on mode'''
 
+    if url is None:
+        url = DEFAULT_URL
+
     if mode == 'all': #send all reminders
-        return get_todos(key, URL)
+        return get_todos(key, url)
 
     if mode == 'urgent': #send urgent reminders
-        return get_reminders(key, URL)
+        return get_reminders(key, url)
 
     return 'illegal mode'
 
-def get_all_todo_attributes(key, URL):
+def get_all_todo_attributes(key, url):
     '''Get attributes of assignment todos (name, date, course_code)'''
 
-    canvas = Canvas(URL, key)
+    canvas = Canvas(url, key)
     todos = canvas.get_todo_items()
 
     all_todo_attributes = []
@@ -45,16 +50,16 @@ def get_all_todo_attributes(key, URL):
             course = canvas.get_course(course_id)
             course_code = course.course_code.split(' ')
             modified_course_code = course_code
-            if 'houston' in URL:
+            if 'houston' in url:
                 modified_course_code = ' '.join(course_code[:-5])
-            elif 'utexas' in URL:
+            elif 'utexas' in url:
                 modified_course_code = (''.join(course_code[:-1]) + ' ' + course_code[-1]).upper()
-            elif 'uth' in URL:
-                course_code = [i for i in re.split('(\d+)', ''.join(course_code)) if i != ''][1:-1]
+            elif 'uth' in url:
+                course_code = [i for i in re.split(r'(\d+)', ''.join(course_code)) if i != ''][1:-1]
                 modified_course_code = course_code[0] + ' ' + ''.join(course_code[1:])
 
             all_todo_attributes.append([data['name'], date, modified_course_code])
-    except SSLCertVerificationError as err:
+    except SSLCertVerificationError:
         print('SSLCertVerificationError - exiting')
         print()
         print()
@@ -63,7 +68,6 @@ def get_all_todo_attributes(key, URL):
     #all_todo_attributes.append(test_attributes)
 
     return all_todo_attributes
-
 
 def filter_todos(all_todo_attributes):
     '''Return list of [name, due date, course code, time diff]'''
@@ -85,10 +89,10 @@ def sort_todo_attributes(attributes):
 
     return sorted(attributes, key = lambda x: x[1])
 
-def get_todos(key, URL):
+def get_todos(key, url):
     '''Get todos for the next week'''
 
-    all_todo_attributes = get_all_todo_attributes(key, URL)
+    all_todo_attributes = get_all_todo_attributes(key, url)
 
     curr = datetime.now()
     if len(all_todo_attributes) == 0:
@@ -119,11 +123,11 @@ def get_todos(key, URL):
 
     return [out_str]
 
-def get_reminders(key, URL):
+def get_reminders(key, url):
     '''Get reminders for urgent todos'''
 
     #list of [name, Arrow object, course code]
-    all_todo_attributes = get_all_todo_attributes(key, URL)
+    all_todo_attributes = get_all_todo_attributes(key, url)
 
     #list of [name, Arrow object, course code, time diff]
     filtered_todo_attributes = sort_todo_attributes(filter_todos(all_todo_attributes))

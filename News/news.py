@@ -1,18 +1,12 @@
 '''News headlines'''
 
-import os
-import sys
 import requests
 
-def main():
+def main(api_key):
     '''
     Request headlines from News API
     Format and return
     '''
-
-    path = os.path.join(sys.path[0], '..', 'News', 'key.txt')
-    with open(path, 'r', encoding = 'ascii') as file:
-        api_key = file.readlines()[0].strip()
 
     api = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={api_key}&pageSize=10"
     req = requests.get(api, timeout=5)
