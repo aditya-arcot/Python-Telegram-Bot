@@ -97,8 +97,7 @@ async def weather_main(update: Update, context) -> int:
     lat, lng = loc['latitude'], loc['longitude']
     out = weather.main(lat, lng, _key_manager.get_weather_key())
 
-    reply_markup=ReplyKeyboardRemove()
-    await telegram_utils.send_message(bot, update.effective_chat.id, out, reply_markup=reply_markup)
+    await telegram_utils.send_message(bot, update.effective_chat.id, out, reply_markup=ReplyKeyboardRemove())
     return end_weather_pipeline(context)
 
 async def weather_cancel(update: Update, context) -> int:
@@ -167,15 +166,13 @@ async def rng_cancel(update: Update, context):
     '''/cancel command passed during /rng pipeline'''
     handle_update(update)
     await telegram_utils.send_message(bot, update.effective_chat.id,
-                                      ["RNG command canceled"],
-                                        reply_markup=ReplyKeyboardRemove())
+                                      ["RNG command canceled"])
     return end_rng_pipeline(context)
 
 async def rng_timeout(update: Update, context):
     '''/rng command timeout'''
     await telegram_utils.send_message(bot, update.effective_chat.id,
-                                      ["RNG command timeout"],
-                                        reply_markup=ReplyKeyboardRemove())
+                                      ["RNG command timeout"])
     return end_rng_pipeline(context)
 
 def end_rng_pipeline(context):
