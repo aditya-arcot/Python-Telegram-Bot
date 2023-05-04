@@ -7,17 +7,5 @@ __pycache__/
 dev/
 secrets/
 
-Telegram/token.txt
-Telegram/users*.txt
-Telegram/sandbox
-
-Weather/key.txt
-
-Canvas/users*.txt
-
-News/key.txt
-
-NASA/key.txt
 NASA/last-updated
 NASA/nasa-pod
-
