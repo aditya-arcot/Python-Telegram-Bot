@@ -9,25 +9,17 @@ from telegram import Update, Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, Keyb
 from telegram.ext import (filters, ApplicationBuilder, CommandHandler,
                             MessageHandler, ConversationHandler, ContextTypes)
 
-import telegram_utils
-
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import random_number_generator
-
-sys.path.insert(1, os.path.join(sys.path[0], '..', 'Utilities'))
-sys.path.insert(1, os.path.join(sys.path[0], '..', 'Weather'))
-sys.path.insert(1, os.path.join(sys.path[0], '..', 'News'))
-sys.path.insert(1, os.path.join(sys.path[0], '..', 'NASA'))
-sys.path.insert(1, os.path.join(sys.path[0], '..', 'Canvas'))
-
-import wait_for_internet
-import key_manager
-import user_manager
-import general
 import weather
 import news
 import nasa
 import todos
+
+from Utilities import telegram_utils
+from Utilities import wait_for_internet
+from Utilities import key_manager
+from Utilities import user_manager
+from Utilities import general
 
 def help_msg():
     '''Returns help message with list of commands'''
@@ -274,10 +266,9 @@ INTEGERS_REGEX = '^-?\\d+$'
 if __name__ == '__main__':
     wait_for_internet.main()
 
-    _user_manager = user_manager.UserManager(os.path.join(sys.path[0], '..', 'secrets',
-                                                            'user_info.json'))
+    _user_manager = user_manager.UserManager(os.path.join('resources', 'user_info.json'))
 
-    _key_manager = key_manager.KeyManager(os.path.join(sys.path[0], '..', 'secrets', 'config.ini'))
+    _key_manager = key_manager.KeyManager(os.path.join('resources', 'config.ini'))
     bot = Bot(_key_manager.get_telegram_key())
     app = ApplicationBuilder().token(_key_manager.get_telegram_key()).build()
 

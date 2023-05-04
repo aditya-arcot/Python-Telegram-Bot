@@ -5,7 +5,7 @@
 __pycache__/
 .vscode/
 dev/
-secrets/
+resources/
 
 NASA/last-updated
 NASA/nasa-pod

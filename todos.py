@@ -7,7 +7,7 @@ import re
 from canvasapi import Canvas
 import arrow
 
-import canvas_utils
+from Utilities import canvas_utils
 
 MIN_DIFF = timedelta()
 MAX_DIFF = timedelta(hours=12)

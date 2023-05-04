@@ -12,9 +12,8 @@ def main(api_key):
     Returns file and title
     '''
 
-    nasa_dir = os.path.dirname(os.path.abspath(__file__))
-    image_path = os.path.join(nasa_dir, 'nasa-pod')
-    last_update_path = os.path.join(nasa_dir, 'last-updated')
+    image_path = os.path.join('resources', 'nasa-pod')
+    last_update_path = os.path.join('resources', 'nasa-last-update')
 
     url, title = get_pic_info(api_key)
 

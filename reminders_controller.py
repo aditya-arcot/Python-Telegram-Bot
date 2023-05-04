@@ -10,14 +10,11 @@ import canvasapi
 
 import todos
 
-sys.path.insert(1, os.path.join(sys.path[0], '..', 'Utilities'))
-sys.path.insert(1, os.path.join(sys.path[0], '..', 'Telegram'))
-
-import wait_for_internet
-import general
-import key_manager
-import user_manager
-import telegram_utils
+from Utilities import wait_for_internet
+from Utilities import general
+from Utilities import key_manager
+from Utilities import user_manager
+from Utilities import telegram_utils
 
 def main():
     '''driver for urgent / all reminders'''
@@ -41,11 +38,10 @@ def main():
         print(general.total_time(start))
         return
 
-    _key_manager = key_manager.KeyManager(os.path.join(sys.path[0], '..', 'secrets', 'config.ini'))
+    _key_manager = key_manager.KeyManager(os.path.join('resources', 'config.ini'))
     bot = Bot(_key_manager.get_telegram_key())
 
-    _user_manager = user_manager.UserManager(os.path.join(sys.path[0], '..', 'secrets', \
-                                                            'user_info.json'))
+    _user_manager = user_manager.UserManager(os.path.join('resources', 'user_info.json'))
     canvas_telegram_users = _user_manager.get_all_active_canvas_telegram_users()
 
     for user in canvas_telegram_users:
