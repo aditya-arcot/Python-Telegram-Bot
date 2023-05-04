@@ -1,6 +1,8 @@
 '''Telegram utility functions'''
 
 import asyncio
+
+from bs4 import BeautifulSoup
 from telegram import Bot
 
 def send_photo_sync(bot: Bot, chat_id, title, photo):
@@ -36,7 +38,7 @@ async def send_message(bot: Bot, chat_id, out: list, parse_mode='HTML',
         if len(out) > 0:
             print('Sending messages:')
             for i in out:
-                print(i)
+                print(BeautifulSoup(i.strip(), "html.parser").get_text())
                 await bot.send_message(
                     chat_id=chat_id, text=i,
                     parse_mode=parse_mode,
