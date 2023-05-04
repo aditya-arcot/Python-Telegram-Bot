@@ -1,0 +1,4 @@
+canvasapi
+nasapy
+pandas
+python-telegram-bot[job-queue]
