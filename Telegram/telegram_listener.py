@@ -6,8 +6,8 @@ import datetime
 import time
 
 from telegram import Update, Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
-from telegram.ext import filters, ApplicationBuilder, CommandHandler, \
-                            MessageHandler, ConversationHandler
+from telegram.ext import (filters, ApplicationBuilder, CommandHandler,
+                            MessageHandler, ConversationHandler, ContextTypes)
 
 import telegram_utils
 
@@ -288,7 +288,7 @@ if __name__ == '__main__':
             UPPER: [MessageHandler(filters.Regex(INTEGERS_REGEX), rng_upper)],
             NUMS: [MessageHandler(filters.Regex(INTEGERS_REGEX), rng_nums)],
             ConversationHandler.TIMEOUT: [MessageHandler(filters.TEXT | filters.COMMAND,
-                                            rng_timeout)],
+                                            rng_timeout)]
         },
         fallbacks=[CommandHandler("cancel", rng_cancel)],
         conversation_timeout=CHAT_TIMEOUT
@@ -298,11 +298,9 @@ if __name__ == '__main__':
     weather_handler = ConversationHandler(
         entry_points=[CommandHandler("weather", weather_start)],
         states={
-            LOCATION: [
-                MessageHandler(filters.LOCATION, weather_main),
-            ],
+            LOCATION: [MessageHandler(filters.LOCATION, weather_main)],
             ConversationHandler.TIMEOUT: [MessageHandler(filters.TEXT | filters.COMMAND,
-                                            weather_timeout)],
+                                            weather_timeout)]
         },
         fallbacks=[CommandHandler("cancel", weather_cancel)],
         conversation_timeout=CHAT_TIMEOUT
