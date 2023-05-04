@@ -315,7 +315,6 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("help", received_command))
     app.add_handler(CommandHandler("ping", received_command))
     app.add_handler(CommandHandler("todo", received_command))
-    app.add_handler(CommandHandler("clear", received_command))
     app.add_handler(CommandHandler("news", received_command))
     app.add_handler(CommandHandler("nasa", received_command))
     app.add_handler(MessageHandler(filters.COMMAND, unknown_command))
