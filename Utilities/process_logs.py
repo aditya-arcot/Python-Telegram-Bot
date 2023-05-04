@@ -34,7 +34,7 @@ print(curr_date)
 yesterday = curr_date - datetime.timedelta(days=1)
 yesterday_str = yesterday.strftime("%m-%d-%y")
 
-log_path = os.path.join(sys.path[0], '..', 'Logs')
+log_path = os.path.join(sys.path[0], '..', '..', 'Logs')
 archived_log_path = os.path.join(log_path, 'archived')
 
 if not os.path.exists(log_path):
