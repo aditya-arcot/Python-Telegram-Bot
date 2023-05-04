@@ -3,9 +3,7 @@
 .env
 
 __pycache__/
+.venv/
 .vscode/
 dev/
 resources/
-
-NASA/last-updated
-NASA/nasa-pod
