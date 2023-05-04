@@ -79,6 +79,8 @@ async def weather_start(update: Update, context) -> int:
         await telegram_utils.send_message(bot, update.effective_chat.id, ['Unauthorized'])
         return
 
+    # don't use 1 time keyboard
+    # location not sent after clicking button on desktop
     reply_markup=ReplyKeyboardMarkup(
         [[KeyboardButton(
             text="Send Location",
