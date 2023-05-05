@@ -174,8 +174,8 @@ async def rng_timeout(update: Update, context):
 def end_rng_pipeline(context):
     '''end rng conversation actions'''
     user_data = context.user_data
-    user_data.pop('lower')
-    user_data.pop('upper')
+    user_data.pop('lower', None)
+    user_data.pop('upper', None)
     print(general.total_time(user_data.pop('rng_start')))
     return ConversationHandler.END
 
