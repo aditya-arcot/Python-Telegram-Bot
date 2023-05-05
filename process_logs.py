@@ -3,7 +3,9 @@
 import datetime
 import os
 import time
-import sys
+
+# change working directory for run through cron
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 '''
 Archive yesterday's logs
@@ -34,7 +36,7 @@ print(curr_date)
 yesterday = curr_date - datetime.timedelta(days=1)
 yesterday_str = yesterday.strftime("%m-%d-%y")
 
-log_path = os.path.join(sys.path[0], '..', '..', 'Logs')
+log_path = os.path.join(os.getcwd(), '..', 'Logs')
 archived_log_path = os.path.join(log_path, 'archived')
 
 if not os.path.exists(log_path):
@@ -77,5 +79,6 @@ for f in archived_logfiles:
 print(f'deleted {len(deleted)} logs')
 for i in deleted:
     print(' - ' + i)
+
 
 print('\nruntime -', str(round(time.time() - start, 2)) + ' s\n')

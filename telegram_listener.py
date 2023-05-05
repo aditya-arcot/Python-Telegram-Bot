@@ -1,9 +1,11 @@
 '''Listener for Telegram messages sent to bot'''
 
-import sys
 import os
 import datetime
 import time
+
+# change working directory for run through cron
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from telegram import Update, Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
 from telegram.ext import (filters, ApplicationBuilder, CommandHandler,
