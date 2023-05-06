@@ -4,9 +4,6 @@ import os
 import datetime
 import time
 
-# change working directory for run through cron
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
 from telegram import Update, Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
 from telegram.ext import (filters, ApplicationBuilder, CommandHandler,
                             MessageHandler, ConversationHandler, ContextTypes)
@@ -16,6 +13,9 @@ import weather
 import news
 import nasa
 import todos
+
+# change working directory for run through cron
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from Utilities import telegram_utils
 from Utilities import wait_for_internet
@@ -89,7 +89,8 @@ async def weather_main(update: Update, context) -> int:
     lat, lng = loc['latitude'], loc['longitude']
     out = weather.main(lat, lng, _key_manager.get_weather_key())
 
-    await telegram_utils.send_message(bot, update.effective_chat.id, out, reply_markup=ReplyKeyboardRemove())
+    await telegram_utils.send_message(bot, update.effective_chat.id, out, 
+                                        reply_markup=ReplyKeyboardRemove())
     return end_weather_pipeline(context)
 
 async def weather_cancel(update: Update, context) -> int:

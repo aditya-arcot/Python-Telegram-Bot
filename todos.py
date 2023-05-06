@@ -26,6 +26,7 @@ def main(mode, key, url):
         return get_reminders(key, url)
 
     print('illegal mode')
+    return []
 
 def get_all_todo_attributes(key, url):
     '''Get attributes of assignment todos (name, date, course_code)'''
@@ -118,7 +119,7 @@ def get_todos(key, url):
     curr_date = curr.strftime("%m/%d")
     num = len(all_todo_attributes)
     out.insert(0, f'<b><u>{curr_date} Upcoming Assignments ({num})</u></b>')
-    
+
     return out
 
 def get_reminders(key, url):

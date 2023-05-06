@@ -5,14 +5,14 @@ import sys
 import time
 import datetime
 
-# change working directory for run through cron
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
 from telegram import Bot
 import canvasapi
 
 import todos
 import news
+
+# change working directory for run through cron
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from Utilities import wait_for_internet
 from Utilities import general
