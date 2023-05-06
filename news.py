@@ -12,13 +12,13 @@ def main(api_key):
     req = requests.get(api, timeout=5)
     req_json = req.json()
 
-    out = '<b><u>Top US headlines:</u></b>\n'
+    out = ['<b><u>Top US headlines:</u></b>']
     for i in req_json['articles']:
         source = i['source']['name']
         title = ' '.join(i['title'].split('-')[:-1])
         url = i['url']
 
         if source is not None and title is not None and url is not None:
-            out += title + f" - <a href='{url}'>{source}</a>\n\n"
+            out.append(f"{title.strip()} - <a href='{url}'>{source}</a>")
 
-    return [out]
+    return out

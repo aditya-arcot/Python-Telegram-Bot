@@ -25,7 +25,7 @@ def main(mode, key, url):
     if mode == 'urgent': #send urgent reminders
         return get_reminders(key, url)
 
-    return 'illegal mode'
+    print('illegal mode')
 
 def get_all_todo_attributes(key, url):
     '''Get attributes of assignment todos (name, date, course_code)'''
@@ -117,11 +117,9 @@ def get_todos(key, url):
 
     curr_date = curr.strftime("%m/%d")
     num = len(all_todo_attributes)
-    out_str = f'<b><u>{curr_date} Upcoming Assignments ({num})</u></b>'
-    for i in out:
-        out_str += '\n' + i + '\n'
-
-    return [out_str]
+    out.insert(0, f'<b><u>{curr_date} Upcoming Assignments ({num})</u></b>')
+    
+    return out
 
 def get_reminders(key, url):
     '''Get reminders for urgent todos'''
@@ -140,12 +138,12 @@ def get_reminders(key, url):
         string = f'Due in {time_diff[1]}'
         if time_diff[0] == 'm':
             string += ' minute'
-            if time_diff[1] > 1:
+            if time_diff[1] != 1:
                 string += 's'
             string += '!! - '
         else:
             string += ' hour'
-            if time_diff[1] > 1:
+            if time_diff[1] != 1:
                 string += 's'
             string += '! - '
         course = todo[2]

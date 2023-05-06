@@ -25,18 +25,14 @@ from Utilities import general
 
 def help_msg():
     '''Returns help message with list of commands'''
-    commands = ['help - Available commands',
-                'todo - Canvas todos',
-                'weather - Local weather info',
-                'news - Top 10 US news headlines',
-                'nasa - NASA astronomy pic of the day',
-                'rng - Random number generator']
-
-    out = '<b><u>Supported commands:</u></b>\n'
-    for command in commands:
-        out += ' - /' + command + '\n'
-
-    return [out]
+    commands = ['<b><u>Supported commands:</u></b>',
+                '/help - Available commands',
+                '/todo - Canvas todos',
+                '/weather - Local weather info',
+                '/news - Top 10 US news headlines',
+                '/nasa - NASA astronomy pic of the day',
+                '/random - Random number generator']
+    return commands
 
 def handle_update(update, text=True):
     '''Returns user for received message'''
@@ -191,7 +187,8 @@ async def received_command(update:Update, _):
     if cmd == 'start':
         out = ['<b>Welcome!</b>']
         if not approved:
-            out.append(f'Contact admin for approval!\nProvide id # {update.effective_chat.id}')
+            out.append('Contact admin for approval!')
+            out.append(f'Provide id # {update.effective_chat.id}')
 
         else:
             out += help_msg()
@@ -275,7 +272,7 @@ if __name__ == '__main__':
     app = ApplicationBuilder().token(_key_manager.get_telegram_key()).build()
 
     rng_handler = ConversationHandler(
-        entry_points=[CommandHandler("rng", rng_start)],
+        entry_points=[CommandHandler("random", rng_start)],
         states={
             LOWER: [MessageHandler(filters.Regex(INTEGERS_REGEX), rng_lower)],
             UPPER: [MessageHandler(filters.Regex(INTEGERS_REGEX), rng_upper)],

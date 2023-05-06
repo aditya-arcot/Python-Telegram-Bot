@@ -17,12 +17,5 @@ def main(args):
 
 def rand_generator(lower, upper, nums = 1):
     '''Core code for generating random numbers'''
-
-    seed = int(time.time())
-    random.seed(seed)
-
-    out = []
-    for _ in range(nums):
-        out.append(str(random.randint(lower, upper)))
-    out.append(f'seed: {seed}')
-    return ['\n'.join(out)]
+    random.seed(int(time.time()))
+    return ['<b><u>Random numbers:</u></b>'] + [str(random.randint(lower, upper)) for _ in range(nums)]

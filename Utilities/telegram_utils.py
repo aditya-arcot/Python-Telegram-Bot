@@ -1,9 +1,12 @@
 '''Telegram utility functions'''
 
 import asyncio
+import warnings
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
 from telegram import Bot
+
+warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
 def send_photo_sync(bot: Bot, chat_id, title, photo):
     '''Send photo from synchronous context'''

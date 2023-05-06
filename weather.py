@@ -18,8 +18,6 @@ def main(lat, lng, api_key):
         print(request["message"])
         return ['Something went wrong. Please try again']
 
-    out = '<b><u>Weather for current location:</u></b>\n'
-
     curr = request['current']
     day = request['daily'][0]
 
@@ -31,9 +29,9 @@ def main(lat, lng, api_key):
     sunrise = datetime.strftime(datetime.fromtimestamp(day['sunrise']), '%-I:%M %p')
     sunset = datetime.strftime(datetime.fromtimestamp(day['sunset']), '%-I:%M %p')
 
-    out += f'- Feels like {curr["feels_like"]} {degree_f}\n'
-    out += f'- Low: {low} {degree_f}, High: {high} {degree_f}\n'
-    out += f'- Description: {desc}\n'
-    out += f'- Sunrise: {sunrise}, Sunset: {sunset}\n'
-
-    return [out]
+    out = ['<b><u>Weather for current location:</u></b>']
+    out.append(f'- Feels like {curr["feels_like"]} {degree_f}')
+    out.append(f'- Low: {low} {degree_f}, High: {high} {degree_f}')
+    out.append(f'- Description: {desc}')
+    out.append(f'- Sunrise: {sunrise}, Sunset: {sunset}')
+    return out
