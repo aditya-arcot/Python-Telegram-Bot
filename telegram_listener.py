@@ -4,9 +4,9 @@ import os
 import datetime
 import time
 
-from telegram import Update, Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
-from telegram.ext import (filters, ApplicationBuilder, CommandHandler,
-                            MessageHandler, ConversationHandler, ContextTypes)
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
+from telegram.ext import (filters, ApplicationBuilder, CommandHandler, PicklePersistence,
+                            MessageHandler, ConversationHandler, ContextTypes, PersistenceInput)
 
 import random_number_generator
 import weather
@@ -22,6 +22,7 @@ from Utilities import wait_for_internet
 from Utilities import key_manager
 from Utilities import user_manager
 from Utilities import general
+from Utilities import timer_utils
 
 def help_msg():
     '''Returns help message with list of commands'''
@@ -60,6 +61,192 @@ def handle_update(update, text=True):
     return True
 
 
+MODE, REMOVE, NAME, UNIT, DURATION = range(5)
+
+async def init_timers(_):
+    if not app.bot_data.get('timers'):
+        app.bot_data['timers'] = {}
+        return
+
+    for chat_id in app.bot_data['timers']:
+        for timer in app.bot_data['timers'][chat_id].values():
+            if timer.remaining() < 0:
+                app.job_queue.run_once(timer_alarm, 0, chat_id=chat_id,
+                                    data={'timer':timer, 'expired':True})
+            else:
+                app.job_queue.run_once(timer_alarm, timer.duration, chat_id=chat_id,
+                                    data={'timer':timer,})
+
+async def timer_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    context.user_data['timer_start'] = time.time()
+    if not handle_update(update): # only need to check approval in 1st message of pipeline
+        await telegram_utils.send_message(bot, update.effective_chat.id, ['Unauthorized'])
+        return
+
+    reply_markup = ReplyKeyboardMarkup([["Add", "Remove", "List"]], one_time_keyboard=True)
+
+    await telegram_utils.send_message(bot, update.effective_chat.id, ['Enter mode or /cancel'],
+                                      reply_markup=reply_markup)
+    return MODE
+
+async def timer_add(update: Update, _) -> int:
+    handle_update(update)
+
+    await telegram_utils.send_message(bot, update.effective_chat.id,
+                                      ['Enter a name for the timer or /cancel'],
+                                      reply_markup=ReplyKeyboardRemove())
+    return NAME
+
+async def timer_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    handle_update(update)
+
+    context.user_data['name'] = update.message.text
+
+    reply_markup = ReplyKeyboardMarkup([["Days", "Hours", "Minutes", "Seconds"]],
+                                       one_time_keyboard=True)
+    await telegram_utils.send_message(bot, update.effective_chat.id,
+                                      ['Choose a time unit or /cancel'],
+                                      reply_markup=reply_markup)
+    return UNIT
+
+async def timer_unit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    handle_update(update)
+
+    context.user_data['unit'] = update.message.text[0]
+
+    await telegram_utils.send_message(bot, update.effective_chat.id,
+                                      ['Enter an integer duration or /cancel'],
+                                      reply_markup=ReplyKeyboardRemove())
+
+    return DURATION
+
+async def timer_duration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    handle_update(update)
+
+    name = context.user_data['name']
+    unit = context.user_data['unit']
+    duration = int(update.message.text)
+    chat_id = update.effective_chat.id
+
+    if unit == 'D':
+        duration *= 60 * 60 * 24
+    elif unit == 'H':
+        duration *= 60 * 60
+    elif unit == 'M':
+        duration *= 60
+
+    curr_time = int(time.time())
+    timer = timer_utils.Timer(name, chat_id, curr_time, duration)
+
+    if not app.bot_data['timers'].get(chat_id):
+        app.bot_data['timers'][chat_id] = {}
+    app.bot_data['timers'][chat_id][curr_time] = timer
+
+    context.job_queue.run_once(timer_alarm, duration, chat_id=chat_id,
+                               data={'timer': timer})
+
+    await telegram_utils.send_message(bot, chat_id, ['Timer successfully created'],
+                                      reply_markup=ReplyKeyboardRemove())
+
+    return end_timer_pipeline(context)
+
+async def timer_remove(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    handle_update(update)
+
+    if len(context.job_queue.jobs()) == 0:
+        await telegram_utils.send_message(bot, update.effective_chat.id,
+                                          ['No active timers'],
+                                          reply_markup=ReplyKeyboardRemove())
+        return end_timer_pipeline(context)
+
+    messages = ['<b><u>Make a selection:</u></b>']
+    for i, job in enumerate(context.job_queue.jobs()):
+        timer = job.data['timer']
+        messages.append(f'{i} - {timer}')
+    await telegram_utils.send_message(bot, update.effective_chat.id, messages,
+                                      reply_markup=ReplyKeyboardRemove())
+
+    return REMOVE
+
+async def timer_remove_core(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    handle_update(update)
+
+    selection = int(update.message.text)
+
+    if selection < 0 or selection >= len(context.job_queue.jobs()):
+        await telegram_utils.send_message(bot, update.effective_chat.id,
+                                          ['Invalid selection, try again or /cancel'],
+                                          reply_markup=ReplyKeyboardRemove())
+        return REMOVE
+
+    timer = context.job_queue.jobs()[selection].pop().data['timer']
+    chat_id = timer.chat_id
+    app.bot_data['timers'][chat_id].pop(timer.start)
+
+    print(app.bot_data)
+    print(app.job_queue.jobs())
+
+    await telegram_utils.send_message(bot, update.effective_chat.id,
+                                        ['Timer removed'],
+                                        reply_markup=ReplyKeyboardRemove())
+
+    return end_timer_pipeline(context)
+
+async def timer_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    handle_update(update)
+
+    if len(context.job_queue.jobs()) == 0:
+        await telegram_utils.send_message(bot, update.effective_chat.id,
+                                          ['No active timers'],
+                                          reply_markup=ReplyKeyboardRemove())
+        return end_timer_pipeline(context)
+
+    messages = ['<b><u>Active timers:</u></b>']
+    for job in context.job_queue.jobs():
+        timer = job.data['timer']
+        messages.append(f'{timer}')
+    await telegram_utils.send_message(bot, update.effective_chat.id, messages,
+                                      reply_markup=ReplyKeyboardRemove())
+
+    return end_timer_pipeline(context)
+
+async def timer_alarm(context: ContextTypes.DEFAULT_TYPE):
+    job = context.job
+    timer = job.data['timer']
+
+    chat_id = timer.chat_id
+    app.bot_data['timers'][chat_id].pop(timer.start)
+
+
+    if job.data.get('expired'):
+        await telegram_utils.send_message(bot, job.chat_id,
+                                          ["<b><u>Alarm rang while bot was down!</u></b> -" +
+                                           f"{timer.name}"])
+    else:
+        await telegram_utils.send_message(bot, job.chat_id,
+                                          [f"<b><u>Timer alarm!</u></b> - {timer.name}"])
+
+async def timer_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    handle_update(update)
+    await telegram_utils.send_message(bot, update.effective_chat.id,
+                                      ["Timer command canceled"],
+                                        reply_markup=ReplyKeyboardRemove())
+    return end_timer_pipeline(context)
+
+async def timer_timeout(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await telegram_utils.send_message(bot, update.effective_chat.id,
+                                      ["Timer command timeout"],
+                                        reply_markup=ReplyKeyboardRemove())
+    return end_timer_pipeline(context)
+
+def end_timer_pipeline(context):
+    '''end weather conversation actions'''
+    context.user_data.pop('name', None)
+    context.user_data.pop('unit', None)
+    print(general.total_time(context.user_data.pop('timer_start')))
+    return ConversationHandler.END
+
+
 LOCATION = 0
 
 async def weather_start(update: Update, context) -> int:
@@ -89,7 +276,7 @@ async def weather_main(update: Update, context) -> int:
     lat, lng = loc['latitude'], loc['longitude']
     out = weather.main(lat, lng, _key_manager.get_weather_key())
 
-    await telegram_utils.send_message(bot, update.effective_chat.id, out, 
+    await telegram_utils.send_message(bot, update.effective_chat.id, out,
                                         reply_markup=ReplyKeyboardRemove())
     return end_weather_pipeline(context)
 
@@ -260,17 +447,43 @@ async def message(update: Update, _):
         await telegram_utils.send_message(bot, update.effective_chat.id, ['Unauthorized'])
     print(general.total_time(start))
 
+
 CHAT_TIMEOUT = 30
-INTEGERS_REGEX = '^-?\\d+$'
+INTEGERS_REGEX = r'^-?\d+$'
 
 if __name__ == '__main__':
     wait_for_internet.main()
 
     _user_manager = user_manager.UserManager(os.path.join('resources', 'user_info.json'))
-
     _key_manager = key_manager.KeyManager(os.path.join('resources', 'config.ini'))
-    bot = Bot(_key_manager.get_telegram_key())
-    app = ApplicationBuilder().token(_key_manager.get_telegram_key()).build()
+
+    persistence = PicklePersistence(store_data=PersistenceInput(bot_data=True),
+                                    filepath=os.path.join('resources', 'telegram_bot.pickle'))
+    app = ApplicationBuilder().token(_key_manager.get_telegram_key()).post_init(init_timers)\
+                                .persistence(persistence).build()
+    bot = app.bot
+
+    timer_handler = ConversationHandler(
+        entry_points=[CommandHandler("timer", timer_start)],
+        states={
+            MODE: [MessageHandler(filters.TEXT & (~ filters.COMMAND) & filters.Regex("^Add$"),
+                                  timer_add),
+                   MessageHandler(filters.TEXT & (~ filters.COMMAND) & filters.Regex("^Remove$"),
+                                  timer_remove),
+                   MessageHandler(filters.TEXT & (~ filters.COMMAND) & filters.Regex("^List$"),
+                                  timer_list)],
+            NAME: [MessageHandler(filters.TEXT & (~ filters.COMMAND), timer_name)],
+            UNIT: [MessageHandler(filters.Regex("^Days$") | filters.Regex("^Hours$") |
+                                  filters.Regex("^Minutes$") | filters.Regex("^Seconds$"),
+                                  timer_unit)],
+            DURATION: [MessageHandler(filters.Regex(INTEGERS_REGEX), timer_duration)],
+            REMOVE: [MessageHandler(filters.Regex(INTEGERS_REGEX), timer_remove_core)],
+            ConversationHandler.TIMEOUT: [MessageHandler(None, timer_timeout)]
+        },
+        fallbacks=[CommandHandler("cancel", timer_cancel)],
+        conversation_timeout=CHAT_TIMEOUT,
+    )
+    app.add_handler(timer_handler)
 
     rng_handler = ConversationHandler(
         entry_points=[CommandHandler("random", rng_start)],
@@ -278,8 +491,7 @@ if __name__ == '__main__':
             LOWER: [MessageHandler(filters.Regex(INTEGERS_REGEX), rng_lower)],
             UPPER: [MessageHandler(filters.Regex(INTEGERS_REGEX), rng_upper)],
             NUMS: [MessageHandler(filters.Regex(INTEGERS_REGEX), rng_nums)],
-            ConversationHandler.TIMEOUT: [MessageHandler(filters.TEXT | filters.COMMAND,
-                                            rng_timeout)]
+            ConversationHandler.TIMEOUT: [MessageHandler(None, rng_timeout)]
         },
         fallbacks=[CommandHandler("cancel", rng_cancel)],
         conversation_timeout=CHAT_TIMEOUT
@@ -290,8 +502,7 @@ if __name__ == '__main__':
         entry_points=[CommandHandler("weather", weather_start)],
         states={
             LOCATION: [MessageHandler(filters.LOCATION, weather_main)],
-            ConversationHandler.TIMEOUT: [MessageHandler(filters.TEXT | filters.COMMAND,
-                                            weather_timeout)]
+            ConversationHandler.TIMEOUT: [MessageHandler(None, weather_timeout)]
         },
         fallbacks=[CommandHandler("cancel", weather_cancel)],
         conversation_timeout=CHAT_TIMEOUT
