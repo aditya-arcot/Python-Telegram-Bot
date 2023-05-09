@@ -95,16 +95,18 @@ def get_todos(key, url):
 
     all_todo_attributes = get_all_todo_attributes(key, url)
 
-    curr = datetime.now()
     if len(all_todo_attributes) == 0:
-        curr_date = curr.strftime("%m/%d")
-        return [f'{curr_date} No Upcoming Assignments!']
+        return ['No Upcoming Assignments!']
 
     out = []
 
     for todo in all_todo_attributes:
         name = canvas_utils.get_output_string(todo[0]) #name
         if todo[1] is not None: #date
+            diff = todo[1] - arrow.now('US/Central')
+            if diff <= MIN_DIFF:
+                continue
+
             date = todo[1].strftime("%m/%d")
             day = todo[1].strftime('%a')
             time = todo[1].strftime("%H:%M")
@@ -116,9 +118,7 @@ def get_todos(key, url):
 
     out.sort()
 
-    curr_date = curr.strftime("%m/%d")
-    num = len(all_todo_attributes)
-    out.insert(0, f'<b><u>{curr_date} Upcoming Assignments ({num})</u></b>')
+    out.insert(0, '<b><u>Upcoming Assignments</u></b>')
 
     return out
 
