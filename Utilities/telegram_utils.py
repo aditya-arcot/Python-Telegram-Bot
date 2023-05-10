@@ -26,6 +26,8 @@ async def send_photo(bot: Bot, chat_id, title, photo):
 def send_message_sync(bot: Bot, chat_id, out: list, parse_mode='HTML',
                         disable_web_page_preview=None, reply_markup=None):
     '''Send message from synchronous context'''
+    # pylint: disable=too-many-arguments
+
     asyncio.get_event_loop().run_until_complete(
         send_message(
             bot, chat_id, out, parse_mode=parse_mode,
@@ -37,6 +39,8 @@ def send_message_sync(bot: Bot, chat_id, out: list, parse_mode='HTML',
 async def send_message(bot: Bot, chat_id, out: list, parse_mode='HTML',
                         disable_web_page_preview=None, reply_markup=None):
     '''Send message from asynchronous context'''
+    # pylint: disable=too-many-arguments
+
     if out is not None:
         if len(out) > 0:
             print('Sending messages:')

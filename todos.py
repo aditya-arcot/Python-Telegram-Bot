@@ -1,6 +1,6 @@
 '''Core Canvas assignment todo code'''
 
-from datetime import timedelta, datetime
+from datetime import timedelta
 from ssl import SSLCertVerificationError
 import re
 

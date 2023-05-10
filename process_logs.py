@@ -7,26 +7,21 @@ import time
 # change working directory for run through cron
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-'''
-Archive yesterday's logs
-Delete logs older than a week
-'''
+# overall purpose
+#   archive yesterday's logs
+#   delete logs older than 1 week
 
-'''
-Each program run through cron appends output to a uniquely named log
-This program runs at 12:00 AM daily
-System restarts at 12:05 AM daily, which restarts logging into new files
-'''
+# each program run through cron appends output to uniquely named log file (*_log.txt)
+# this program should run at midnight daily
+# system restarts at 12:05 AM daily, which restarts logging into new files
 
-'''
-Process
-    Archive
-        Yesterday's date is appended to each log file
-            Ex: udp_listener.txt -> udp_listener_log_01-01-23.txt
-        Log files are moved to archived folder
-    Delete
-        Log files in archived folder with a date older than 1 week are deleted
-'''
+# process
+#   archive
+#       yesterday's date appended to each log file
+#           ex: udp_listener.txt -> udp_listener_log_01-01-23.txt
+#       log files are moved to archived folder
+#   delete
+#       log files in archived folder with date older than 1 week are deleted
 
 start = time.time()
 

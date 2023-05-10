@@ -1,5 +1,7 @@
 '''sends news / reminders broadcasts to relevant users'''
 
+# pylint: disable=wrong-import-position
+
 import os
 import sys
 import time

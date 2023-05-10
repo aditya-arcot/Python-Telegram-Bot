@@ -5,6 +5,7 @@ from typing import List
 
 class User:
     '''allows access to user properties'''
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, info: dict):
         self.name = info.get('name')
@@ -40,7 +41,7 @@ class UserManager:
     '''reads in users, creates objects, allows access'''
 
     def __init__(self, users_json):
-        with open(users_json, 'r') as json_file:
+        with open(users_json, 'r', encoding='utf-8') as json_file:
             contents = json.loads(json_file.read())
 
         self.all_users = [User(info) for info in contents]

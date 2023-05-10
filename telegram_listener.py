@@ -1,5 +1,7 @@
 '''Listener for Telegram messages sent to bot'''
 
+# pylint: disable=wrong-import-position
+
 import os
 import datetime
 import time
@@ -64,7 +66,9 @@ def handle_update(update, text=True):
 
 MODE, REMOVE, NAME, UNIT, DURATION = range(5)
 
-async def init_timers(_):
+async def timer_init(_):
+    '''Initializes job queue with existing timers'''
+
     if not app.bot_data.get('timers'):
         app.bot_data['timers'] = {}
         return
@@ -79,6 +83,8 @@ async def init_timers(_):
                                     data={'timer':timer,})
 
 async def timer_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    '''Initial function in /timer command pipeline'''
+
     context.user_data['timer_start'] = time.time()
     if not handle_update(update): # only need to check approval in 1st message of pipeline
         await telegram_utils.send_message(bot, update.effective_chat.id, ['Unauthorized'])
@@ -91,6 +97,8 @@ async def timer_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     return MODE
 
 async def timer_add(update: Update, _) -> int:
+    '''Gets new timer name'''
+
     handle_update(update)
 
     await telegram_utils.send_message(bot, update.effective_chat.id,
@@ -99,6 +107,8 @@ async def timer_add(update: Update, _) -> int:
     return NAME
 
 async def timer_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    '''Gets new timer time unit after saving name'''
+
     handle_update(update)
 
     context.user_data['name'] = update.message.text
@@ -111,6 +121,8 @@ async def timer_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return UNIT
 
 async def timer_unit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    '''Gets new timer duration after saving time unit'''
+
     handle_update(update)
 
     context.user_data['unit'] = update.message.text[0]
@@ -122,6 +134,8 @@ async def timer_unit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return DURATION
 
 async def timer_duration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    '''Creates timer after saving duration'''
+
     handle_update(update)
 
     name = context.user_data['name']
@@ -152,6 +166,8 @@ async def timer_duration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return end_timer_pipeline(context)
 
 async def timer_remove(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    '''Gets timer to remove'''
+
     handle_update(update)
 
     if len(context.job_queue.jobs()) == 0:
@@ -170,6 +186,8 @@ async def timer_remove(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     return REMOVE
 
 async def timer_remove_core(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    '''Removes timer from existing'''
+
     handle_update(update)
 
     selection = int(update.message.text)
@@ -182,7 +200,7 @@ async def timer_remove_core(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     timer = context.job_queue.jobs()[selection].data['timer']
     chat_id = timer.chat_id
-    
+
     context.job_queue.jobs()[selection].schedule_removal()
     app.bot_data['timers'][chat_id].pop(timer.start)
 
@@ -193,6 +211,8 @@ async def timer_remove_core(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     return end_timer_pipeline(context)
 
 async def timer_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    '''Lists existing timers'''
+
     handle_update(update)
 
     if len(context.job_queue.jobs()) == 0:
@@ -211,6 +231,8 @@ async def timer_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return end_timer_pipeline(context)
 
 async def timer_alarm(context: ContextTypes.DEFAULT_TYPE):
+    '''Displays message when timer expires'''
+
     job = context.job
     timer = job.data['timer']
 
@@ -226,6 +248,7 @@ async def timer_alarm(context: ContextTypes.DEFAULT_TYPE):
                                           [f"<b><u>Timer alarm!</u></b> - {timer.name}"])
 
 async def timer_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    '''/cancel entered during /timer pipeline'''
     handle_update(update)
     await telegram_utils.send_message(bot, update.effective_chat.id,
                                       ["Timer command canceled"],
@@ -233,13 +256,14 @@ async def timer_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     return end_timer_pipeline(context)
 
 async def timer_timeout(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    '''Timeout during /timer pipeline'''
     await telegram_utils.send_message(bot, update.effective_chat.id,
                                       ["Timer command timeout"],
                                         reply_markup=ReplyKeyboardRemove())
     return end_timer_pipeline(context)
 
 def end_timer_pipeline(context):
-    '''end weather conversation actions'''
+    '''Ends timer conversation actions'''
     context.user_data.pop('name', None)
     context.user_data.pop('unit', None)
     print(general.total_time(context.user_data.pop('timer_start')))
@@ -293,7 +317,7 @@ async def weather_timeout(update, context):
     return end_weather_pipeline(context)
 
 def end_weather_pipeline(context):
-    '''end weather conversation actions'''
+    '''End weather conversation actions'''
     print(general.total_time(context.user_data.pop('weather_start')))
     return ConversationHandler.END
 
@@ -301,7 +325,7 @@ def end_weather_pipeline(context):
 LOWER, UPPER, NUMS = range(3)
 
 async def rng_start(update: Update, context):
-    '''Initial function in /rng command pipeline, asks for lower bound'''
+    '''Initial function in /random command pipeline, asks for lower bound'''
     context.user_data['rng_start'] = time.time()
     if not handle_update(update): # only need to check approval in 1st message of pipeline
         await telegram_utils.send_message(bot, update.effective_chat.id, ['Unauthorized'])
@@ -342,20 +366,20 @@ async def rng_nums(update: Update, context):
     return end_rng_pipeline(context)
 
 async def rng_cancel(update: Update, context):
-    '''/cancel command passed during /rng pipeline'''
+    '''/cancel command passed during /random pipeline'''
     handle_update(update)
     await telegram_utils.send_message(bot, update.effective_chat.id,
                                       ["RNG command canceled"])
     return end_rng_pipeline(context)
 
 async def rng_timeout(update: Update, context):
-    '''/rng command timeout'''
+    '''/random command timeout'''
     await telegram_utils.send_message(bot, update.effective_chat.id,
                                       ["RNG command timeout"])
     return end_rng_pipeline(context)
 
 def end_rng_pipeline(context):
-    '''end rng conversation actions'''
+    '''Ends rng conversation actions'''
     user_data = context.user_data
     user_data.pop('lower', None)
     user_data.pop('upper', None)
@@ -365,6 +389,8 @@ def end_rng_pipeline(context):
 
 async def received_command(update:Update, _):
     '''General function for all received commands'''
+
+    # pylint: disable=too-many-branches
 
     start = time.time()
     approved = handle_update(update)
@@ -458,7 +484,7 @@ if __name__ == '__main__':
 
     persistence = PicklePersistence(store_data=PersistenceInput(bot_data=True),
                                     filepath=os.path.join('resources', 'telegram_bot.pickle'))
-    app = ApplicationBuilder().token(_key_manager.get_telegram_key()).post_init(init_timers)\
+    app = ApplicationBuilder().token(_key_manager.get_telegram_key()).post_init(timer_init)\
                                 .persistence(persistence).build()
     bot = app.bot
 
