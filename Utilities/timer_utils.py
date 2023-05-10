@@ -8,8 +8,17 @@ class Timer:
         self.duration = duration # seconds
 
     def __str__(self):
-        return f'{self.name} - {self.remaining()}s left'
+        return f'{self.name} - {self.remaining_formatted()}'
 
-    def remaining(self):
+    def remaining_seconds(self):
         return (self.start + self.duration) - int(time.time())
     
+    def remaining_formatted(self):
+        seconds = self.remaining_seconds()
+        if seconds >= 86400:
+            return '{:.1f}'.format(seconds / 86400) + ' days remaining'
+        if seconds >= 3600:
+            return '{:.1f}'.format(seconds / 3600) + ' hours remaining'
+        if seconds >= 60:
+            return '{:.1f}'.format(seconds / 60) + ' minutes remaining'
+        return '{:.1f}'.format(seconds) + ' seconds remaining'

@@ -32,7 +32,8 @@ def help_msg():
                 '/weather - Local weather info',
                 '/news - Top 10 US news headlines',
                 '/nasa - NASA astronomy pic of the day',
-                '/random - Random number generator']
+                '/random - Random number generator',
+                '/timer - Create, list, or remove custom timers']
     return commands
 
 def handle_update(update, text=True):
@@ -70,7 +71,7 @@ async def init_timers(_):
 
     for chat_id in app.bot_data['timers']:
         for timer in app.bot_data['timers'][chat_id].values():
-            if timer.remaining() < 0:
+            if timer.remaining_seconds() < 0:
                 app.job_queue.run_once(timer_alarm, 0, chat_id=chat_id,
                                     data={'timer':timer, 'expired':True})
             else:
@@ -179,12 +180,11 @@ async def timer_remove_core(update: Update, context: ContextTypes.DEFAULT_TYPE) 
                                           reply_markup=ReplyKeyboardRemove())
         return REMOVE
 
-    timer = context.job_queue.jobs()[selection].pop().data['timer']
+    timer = context.job_queue.jobs()[selection].data['timer']
     chat_id = timer.chat_id
+    
+    context.job_queue.jobs()[selection].schedule_removal()
     app.bot_data['timers'][chat_id].pop(timer.start)
-
-    print(app.bot_data)
-    print(app.job_queue.jobs())
 
     await telegram_utils.send_message(bot, update.effective_chat.id,
                                         ['Timer removed'],
@@ -216,7 +216,6 @@ async def timer_alarm(context: ContextTypes.DEFAULT_TYPE):
 
     chat_id = timer.chat_id
     app.bot_data['timers'][chat_id].pop(timer.start)
-
 
     if job.data.get('expired'):
         await telegram_utils.send_message(bot, job.chat_id,
