@@ -35,7 +35,7 @@ def help_msg():
                 '/news - Top 10 US news headlines',
                 '/nasa - NASA astronomy pic of the day',
                 '/random - Random number generator',
-                '/timer - Create, list, or remove custom timers']
+                '/timer - Custom timers']
     return commands
 
 def handle_update(update, text=True):
