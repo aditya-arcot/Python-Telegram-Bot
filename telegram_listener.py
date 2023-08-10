@@ -411,8 +411,8 @@ async def received_command(update:Update, _):
             if cmd == 'help':
                 out = help_msg()
 
-            elif cmd == 'ping':
-                out = ['pong']
+            elif cmd == 'status':
+                out = ['Online']
 
             elif cmd == 'todo':
                 user = _user_manager.get_user_from_telegram_id(update.effective_chat.id)
@@ -536,7 +536,7 @@ if __name__ == '__main__':
 
     app.add_handler(CommandHandler("start", received_command))
     app.add_handler(CommandHandler("help", received_command))
-    app.add_handler(CommandHandler("ping", received_command))
+    app.add_handler(CommandHandler("status", received_command))
     app.add_handler(CommandHandler("todo", received_command))
     app.add_handler(CommandHandler("news", received_command))
     app.add_handler(CommandHandler("nasa", received_command))
