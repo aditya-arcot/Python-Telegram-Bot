@@ -477,6 +477,7 @@ CHAT_TIMEOUT = 30
 INTEGERS_REGEX = r'^-?\d+$'
 
 if __name__ == '__main__':
+    print(datetime.datetime.now())
     wait_for_internet.main()
 
     _user_manager = user_manager.UserManager(os.path.join('resources', 'user_info.json'))
