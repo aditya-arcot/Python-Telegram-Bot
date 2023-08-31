@@ -14,11 +14,15 @@ def main(api_key):
 
     out = ['<b><u>Top US headlines:</u></b>']
     for i in req_json['articles']:
-        source = i['source']['name']
-        title = ' '.join(i['title'].split('-')[:-1])
-        url = i['url']
+        try:
+            source = i['source']['name']
+            title = ' '.join(i['title'].split('-')[:-1])
+            url = i['url']
 
-        if source is not None and title is not None and url is not None:
-            out.append(f"{title.strip()} - <a href='{url}'>{source}</a>")
+            if source is not None and title is not None and url is not None:
+                out.append(f"{title.strip()} - <a href='{url}'>{source}</a>")
+
+        except AttributeError: # caused by calling split on NoneType object
+            continue
 
     return out
