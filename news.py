@@ -14,14 +14,14 @@ def main(api_key):
 
     out = ['<b><u>Top US headlines:</u></b>']
     for i in req_json['articles']:
+        title = i['title']
+        if (not title) or (title == "[Removed]"):
+            continue
+        title = ' '.join(title.split('-')[:-1])
+
         source = i['source']['name']
         if not source:
             continue
-
-        title = i['title']
-        if not title:
-            continue
-        title = ' '.join(title.split('-')[:-1])
 
         url = i['url']
         if not url:
