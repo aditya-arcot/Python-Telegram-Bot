@@ -12,6 +12,7 @@ import canvasapi
 
 import todos
 import news
+import jokes
 
 # change working directory for run through cron
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -42,6 +43,8 @@ def main():
             reminders_broadcast(_user_manager, bot)
         elif broadcast_type == 'news':
             news_broadcast(_user_manager, _key_manager, bot)
+        elif broadcast_type == 'joke':
+            joke_broadcast(_user_manager, bot)
         else:
             print('unrecognized broadcast type')
     else:
@@ -90,6 +93,17 @@ def news_broadcast(_user_manager, _key_manager, bot):
     for user in users:
         print(f'Chat id: {user.telegram_id} ({user.name})')
         telegram_utils.send_message_sync(bot, user.telegram_id, news_message, \
+                                         disable_web_page_preview=True)
+
+
+def joke_broadcast(_user_manager, bot):
+    '''send joke broadcast to all Telegram users'''
+
+    joke = jokes.main()
+    users = _user_manager.get_all_active_telegram_users()
+    for user in users:
+        print(f'Chat id: {user.telegram_id} ({user.name})')
+        telegram_utils.send_message_sync(bot, user.telegram_id, joke, \
                                          disable_web_page_preview=True)
 
 

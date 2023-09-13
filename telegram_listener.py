@@ -15,6 +15,7 @@ import weather
 import news
 import nasa
 import todos
+import jokes
 
 # change working directory for run through cron
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -437,6 +438,9 @@ async def received_command(update:Update, _):
                     with open(filename, 'rb') as image:
                         await telegram_utils.send_photo(bot, update.effective_chat.id, title, image)
 
+            elif cmd == 'joke':
+                out = jokes.main()
+
             else:
                 print(f'unknown cmd provided - {cmd} - check code')
 
@@ -541,6 +545,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("todo", received_command))
     app.add_handler(CommandHandler("news", received_command))
     app.add_handler(CommandHandler("nasa", received_command))
+    app.add_handler(CommandHandler("joke", received_command))
     app.add_handler(MessageHandler(filters.COMMAND, unknown_command))
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), message))
 
