@@ -32,6 +32,7 @@ def help_msg():
     commands = ['<b><u>Supported commands:</u></b>',
                 '/help - Available commands',
                 '/todo - Canvas todos',
+                '/joke - Random joke',
                 '/weather - Local weather info',
                 '/news - Top 10 US news headlines',
                 '/nasa - NASA astronomy pic of the day',
