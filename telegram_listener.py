@@ -3,10 +3,12 @@
 # pylint: disable=wrong-import-position
 
 import os
+import sys
 import datetime
 import time
 
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
+from telegram.error import NetworkError
 from telegram.ext import (filters, ApplicationBuilder, CommandHandler, PicklePersistence,
                             MessageHandler, ConversationHandler, ContextTypes, PersistenceInput)
 
@@ -550,4 +552,8 @@ if __name__ == '__main__':
     app.add_handler(MessageHandler(filters.COMMAND, unknown_command))
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), message))
 
-    app.run_polling()
+    try:
+        app.run_polling()
+    except NetworkError:
+        print('network error - exiting')
+        sys.exit()
