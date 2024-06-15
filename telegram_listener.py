@@ -473,7 +473,7 @@ async def message(update: Update, _):
     start = time.time()
     if handle_update(update):
         await telegram_utils.send_message(bot, update.effective_chat.id,
-                                          [r'Please enter a command (starting with \)']
+                                          [r'Please enter a command (starting with /)']
                                             + help_msg())
     else:
         await telegram_utils.send_message(bot, update.effective_chat.id, ['Unauthorized'])
