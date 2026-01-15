@@ -8,9 +8,18 @@ from telegram import Bot
 
 warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
+
+def get_or_create_event_loop():
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop
+
 def send_photo_sync(bot: Bot, chat_id, title, photo):
     '''Send photo from synchronous context'''
-    asyncio.get_event_loop().run_until_complete(
+    get_or_create_event_loop().run_until_complete(
         send_photo(
             bot, chat_id, title, photo
         )
@@ -28,7 +37,7 @@ def send_message_sync(bot: Bot, chat_id, out: list, parse_mode='HTML',
     '''Send message from synchronous context'''
     # pylint: disable=too-many-arguments
 
-    asyncio.get_event_loop().run_until_complete(
+    get_or_create_event_loop().run_until_complete(
         send_message(
             bot, chat_id, out, parse_mode=parse_mode,
             disable_web_page_preview=disable_web_page_preview,
